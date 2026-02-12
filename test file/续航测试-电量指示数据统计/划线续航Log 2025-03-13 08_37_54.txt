@@ -1,0 +1,835 @@
+nRF Connect, 2025-03-12
+HUAWEI M-Pencil 3 (70:61:EE:C1:5D:04)
+V	18:01:44.754	Reading characteristic 00002a19-0000-1000-8000-00805f9b34fb
+D	18:01:44.754	gatt.readCharacteristic(00002a19-0000-1000-8000-00805f9b34fb)
+I	18:01:45.032	Read Response received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 64, "d"
+A	18:01:45.032	"100%" received
+I	18:02:13.369	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-07-01-01-01
+A	18:02:13.369	"(0x) 2D-07-01-01-01" received
+I	18:02:13.518	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	18:02:13.518	"(0x) 2D-04-01-01-00" received
+I	18:02:13.904	Connection parameters updated (interval: 15.0ms, latency: 0, timeout: 5000ms)
+I	18:02:17.145	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-01
+A	18:02:17.145	"(0x) 2D-04-01-01-01" received
+I	18:02:19.986	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	18:02:19.986	"(0x) 2D-04-01-01-00" received
+I	18:02:24.078	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-01
+A	18:02:24.078	"(0x) 2D-04-01-01-01" received
+I	18:02:49.998	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	18:02:49.998	"(0x) 2D-04-01-01-00" received
+I	18:08:47.510	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 63, "c"
+A	18:08:47.510	"99%" received
+I	18:11:43.444	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-01
+A	18:11:43.444	"(0x) 2D-04-01-01-01" received
+I	18:11:46.669	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	18:11:46.670	"(0x) 2D-04-01-01-00" received
+I	18:15:14.866	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 62, "b"
+A	18:15:14.866	"98%" received
+I	18:22:21.361	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 61, "a"
+A	18:22:21.361	"97%" received
+I	18:30:16.500	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 60, "`"
+A	18:30:16.500	"96%" received
+I	18:38:52.276	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 5F, "_"
+A	18:38:52.276	"95%" received
+I	18:46:35.251	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 5E, "^"
+A	18:46:35.251	"94%" received
+I	18:54:22.381	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 5D, "]"
+A	18:54:22.381	"93%" received
+I	19:02:01.291	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 5C, "\"
+A	19:02:01.291	"92%" received
+I	19:10:12.666	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 5B, "["
+A	19:10:12.666	"91%" received
+I	19:17:43.516	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 5A, "Z"
+A	19:17:43.516	"90%" received
+I	19:17:43.516	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8B-C8-6B-0B-00-05-02-0B-5A-00
+A	19:17:43.516	"(0x) 2D-02-01-0C-01-95-8B-C8-6B-0B-00-05-02-0B-5A-00" received
+I	19:25:14.345	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 59, "Y"
+A	19:25:14.345	"89%" received
+I	19:32:36.949	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 58, "X"
+A	19:32:36.949	"88%" received
+I	19:40:44.491	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 57, "W"
+A	19:40:44.491	"87%" received
+I	19:48:11.133	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 56, "V"
+A	19:48:11.133	"86%" received
+I	19:55:29.793	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 55, "U"
+A	19:55:29.793	"85%" received
+I	20:02:52.366	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 54, "T"
+A	20:02:52.366	"84%" received
+I	20:10:59.718	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 53, "S"
+A	20:10:59.718	"83%" received
+I	20:18:18.303	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 52, "R"
+A	20:18:18.303	"82%" received
+I	20:25:41.071	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 51, "Q"
+A	20:25:41.071	"81%" received
+I	20:33:03.769	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 50, "P"
+A	20:33:03.769	"80%" received
+I	20:33:03.771	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8C-0B-B4-D0-00-05-02-0B-50-00
+A	20:33:03.771	"(0x) 2D-02-01-0C-01-95-8C-0B-B4-D0-00-05-02-0B-50-00" received
+I	20:41:07.008	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 4F, "O"
+A	20:41:07.009	"79%" received
+I	20:48:25.594	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 4E, "N"
+A	20:48:25.594	"78%" received
+I	20:55:44.251	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 4D, "M"
+A	20:55:44.251	"77%" received
+I	21:02:58.742	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 4C, "L"
+A	21:02:58.742	"76%" received
+I	21:10:57.976	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 4B, "K"
+A	21:10:57.976	"75%" received
+I	21:18:08.403	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 4A, "J"
+A	21:18:08.403	"74%" received
+I	21:25:31.111	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 49, "I"
+A	21:25:31.111	"73%" received
+I	21:32:41.611	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 48, "H"
+A	21:32:41.611	"72%" received
+I	21:39:52.097	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 47, "G"
+A	21:39:52.097	"71%" received
+I	21:47:51.361	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 46, "F"
+A	21:47:51.361	"70%" received
+I	21:47:51.362	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8C-4E-82-9B-00-05-02-0B-46-00
+A	21:47:51.362	"(0x) 2D-02-01-0C-01-95-8C-4E-82-9B-00-05-02-0B-46-00" received
+I	21:55:05.898	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 45, "E"
+A	21:55:05.898	"69%" received
+I	22:02:16.410	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 44, "D"
+A	22:02:16.410	"68%" received
+I	22:09:30.916	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 43, "C"
+A	22:09:30.916	"67%" received
+I	22:17:10.011	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 42, "B"
+A	22:17:10.011	"66%" received
+I	22:23:52.035	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 41, "A"
+A	22:23:52.035	"65%" received
+I	22:31:02.536	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 40, "@"
+A	22:31:02.536	"64%" received
+I	22:38:21.166	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 3F, "?"
+A	22:38:21.166	"63%" received
+I	22:46:16.366	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 3E, ">"
+A	22:46:16.366	"62%" received
+I	22:53:26.835	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 3D, "="
+A	22:53:26.835	"61%" received
+I	23:00:41.296	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 3C, "<"
+A	23:00:41.296	"60%" received
+I	23:00:41.297	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8C-8F-8F-D4-00-05-02-0B-3C-00
+A	23:00:41.297	"(0x) 2D-02-01-0C-01-95-8C-8F-8F-D4-00-05-02-0B-3C-00" received
+I	23:07:55.922	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 3B, ";"
+A	23:07:55.922	"59%" received
+I	23:15:51.061	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 3A, ":"
+A	23:15:51.061	"58%" received
+I	23:23:05.641	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 39, "9"
+A	23:23:05.641	"57%" received
+I	23:29:47.716	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 38, "8"
+A	23:29:47.716	"56%" received
+I	23:36:05.341	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 37, "7"
+A	23:36:05.341	"55%" received
+I	23:43:03.676	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 36, "6"
+A	23:43:03.676	"54%" received
+I	23:49:21.316	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 35, "5"
+A	23:49:21.316	"53%" received
+I	23:55:39.046	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 34, "4"
+A	23:55:39.046	"52%" received
+I	00:01:56.809	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 33, "3"
+A	00:01:56.809	"51%" received
+I	00:08:51.181	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 32, "2"
+A	00:08:51.181	"50%" received
+I	00:08:51.181	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8C-CC-71-95-00-05-02-0B-32-00
+A	00:08:51.181	"(0x) 2D-02-01-0C-01-95-8C-CC-71-95-00-05-02-0B-32-00" received
+I	00:15:04.787	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 31, "1"
+A	00:15:04.787	"49%" received
+I	00:21:14.341	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 30, "0"
+A	00:21:14.341	"48%" received
+I	00:27:27.976	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 2F, "/"
+A	00:27:27.976	"47%" received
+I	00:33:37.606	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 2E, "."
+A	00:33:37.606	"46%" received
+I	00:40:19.606	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 2D, "-"
+A	00:40:19.606	"45%" received
+I	00:46:29.161	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 2C, ","
+A	00:46:29.161	"44%" received
+I	00:52:42.797	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 2B, "+"
+A	00:52:42.797	"43%" received
+I	00:58:52.410	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 2A, "*"
+A	00:58:52.410	"42%" received
+I	01:05:38.566	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 29, ")"
+A	01:05:38.566	"41%" received
+I	01:11:48.136	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 28, "("
+A	01:11:48.136	"40%" received
+I	01:11:48.137	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8D-04-AA-DB-00-05-02-0B-28-00
+A	01:11:48.137	"(0x) 2D-02-01-0C-01-95-8D-04-AA-DB-00-05-02-0B-28-00" received
+I	01:17:57.781	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 27, "'"
+A	01:17:57.781	"39%" received
+I	01:24:11.371	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 26, "&"
+A	01:24:11.371	"38%" received
+I	01:30:57.498	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 25, "%"
+A	01:30:57.498	"37%" received
+I	01:37:07.021	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 24, "$"
+A	01:37:07.021	"36%" received
+I	01:43:16.651	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 23, "#"
+A	01:43:16.651	"35%" received
+I	01:49:26.175	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 22, """
+A	01:49:26.175	"34%" received
+I	01:56:08.236	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 21, "!"
+A	01:56:08.236	"33%" received
+I	02:02:17.866	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 20, " "
+A	02:02:17.866	"32%" received
+I	02:08:27.393	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 1F
+A	02:08:27.393	"31%" received
+I	02:14:32.846	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 1E
+A	02:14:32.846	"30%" received
+I	02:14:32.865	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8D-3C-B5-06-00-05-02-0B-1E-00
+A	02:14:32.865	"(0x) 2D-02-01-0C-01-95-8D-3C-B5-06-00-05-02-0B-1E-00" received
+I	02:21:15.051	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 1D
+A	02:21:15.051	"29%" received
+I	02:27:24.639	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 1C
+A	02:27:24.639	"28%" received
+I	02:33:30.110	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 1B
+A	02:33:30.110	"27%" received
+I	02:39:43.729	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 1A
+A	02:39:43.729	"26%" received
+I	02:46:29.855	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 19
+A	02:46:29.855	"25%" received
+I	02:52:43.446	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 18
+A	02:52:43.446	"24%" received
+I	02:58:57.079	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 17
+A	02:58:57.079	"23%" received
+I	03:05:10.685	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 16
+A	03:05:10.685	"22%" received
+I	03:11:28.415	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 15
+A	03:11:28.415	"21%" received
+I	03:18:18.592	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 14
+A	03:18:18.592	"20%" received
+I	03:18:18.594	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8D-75-A7-F0-00-05-02-0B-14-00
+A	03:18:18.594	"(0x) 2D-02-01-0C-01-95-8D-75-A7-F0-00-05-02-0B-14-00" received
+I	03:24:32.270	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 13
+A	03:24:32.270	"19%" received
+I	03:30:41.872	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 12
+A	03:30:41.872	"18%" received
+I	03:36:55.430	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 11
+A	03:36:55.430	"17%" received
+I	03:43:41.629	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 10
+A	03:43:41.629	"16%" received
+I	03:49:51.140	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 0F
+A	03:49:51.140	"15%" received
+I	03:56:00.680	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 0E
+A	03:56:00.680	"14%" received
+I	04:02:14.332	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 0D
+A	04:02:14.332	"13%" received
+I	04:09:04.537	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 0C
+A	04:09:04.537	"12%" received
+I	04:15:06.021	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 0B
+A	04:15:06.021	"11%" received
+I	04:21:03.426	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 0A
+A	04:21:03.426	"10%" received
+I	04:21:03.427	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8D-AD-B2-D8-00-05-02-0B-0A-00
+A	04:21:03.427	"(0x) 2D-02-01-0C-01-95-8D-AD-B2-D8-00-05-02-0B-0A-00" received
+I	04:26:52.670	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 09
+A	04:26:52.670	"9%" received
+I	04:33:06.428	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 08
+A	04:33:06.428	"8%" received
+I	04:38:47.496	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 07
+A	04:38:47.496	"7%" received
+I	04:44:32.750	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 06
+A	04:44:32.750	"6%" received
+I	04:50:22.026	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 05
+A	04:50:22.026	"5%" received
+I	04:56:47.825	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 04
+A	04:56:47.825	"4%" received
+I	05:02:57.514	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 03
+A	05:02:57.514	"3%" received
+I	05:10:03.876	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 02
+A	05:10:03.876	"2%" received
+I	05:21:42.469	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	05:21:42.469	"1%" received
+D	05:39:10.818	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:39:10.818	Disconnected
+D	05:39:11.016	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	05:40:18.932	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	05:40:18.932	Connected to 70:61:EE:C1:5D:04
+D	05:40:18.933	wait(1600ms)
+I	05:40:18.934	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	05:40:18.934	"(0x) 2D-04-01-01-00" received
+I	05:40:18.934	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-06-01-01-03
+A	05:40:18.934	"(0x) 2D-06-01-01-03" received
+D	05:40:18.946	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+I	05:40:19.005	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-07-01-01-01
+A	05:40:19.005	"(0x) 2D-07-01-01-01" received
+I	05:40:19.740	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32
+A	05:40:19.740	"(0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32" received
+I	05:40:19.785	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	05:40:19.785	"1%" received
+I	05:40:20.202	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	05:40:20.202	"(0x) 2B-70-01-01-01" received
+V	05:40:20.566	Discovering services...
+D	05:40:20.566	gatt.discoverServices()
+D	05:40:20.575	[Callback] Services discovered with status: 0
+I	05:40:20.575	Services discovered
+V	05:40:20.584	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	05:40:20.584	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	05:40:20.585	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	05:40:20.586	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	05:40:20.587	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+D	05:40:24.718	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:40:24.718	Disconnected
+D	05:40:24.911	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	05:41:36.109	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	05:41:36.109	Connected to 70:61:EE:C1:5D:04
+D	05:41:36.109	wait(1600ms)
+I	05:41:36.120	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	05:41:36.120	"(0x) 2D-04-01-01-00" received
+I	05:41:36.120	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-06-01-01-03
+A	05:41:36.120	"(0x) 2D-06-01-01-03" received
+D	05:41:36.141	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+I	05:41:36.171	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-07-01-01-01
+A	05:41:36.171	"(0x) 2D-07-01-01-01" received
+I	05:41:36.699	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32
+A	05:41:36.699	"(0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32" received
+I	05:41:36.713	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	05:41:36.713	"1%" received
+I	05:41:36.800	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	05:41:36.800	"(0x) 2B-70-01-01-01" received
+V	05:41:37.749	Discovering services...
+D	05:41:37.749	gatt.discoverServices()
+D	05:41:37.756	[Callback] Services discovered with status: 0
+I	05:41:37.756	Services discovered
+V	05:41:37.761	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	05:41:37.761	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	05:41:37.762	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	05:41:37.763	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	05:41:37.764	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+I	05:41:38.096	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-00-00-00-00-0A-E3-00-05-03-14-1F-01
+A	05:41:38.096	"(0x) 2D-02-01-0C-00-00-00-00-0A-E3-00-05-03-14-1F-01" received
+I	05:41:38.106	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8E-05-C1-A1-00-04-0C-00-81-CF
+A	05:41:38.106	"(0x) 2D-02-01-0C-01-95-8E-05-C1-A1-00-04-0C-00-81-CF" received
+I	05:41:38.107	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8E-05-C1-AE-00-04-0C-00-81-CF
+A	05:41:38.107	"(0x) 2D-02-01-0C-01-95-8E-05-C1-AE-00-04-0C-00-81-CF" received
+D	05:41:45.398	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:41:45.398	Disconnected
+D	05:41:45.563	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	05:42:55.093	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	05:42:55.093	Connected to 70:61:EE:C1:5D:04
+D	05:42:55.094	wait(1600ms)
+I	05:42:55.103	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	05:42:55.103	"(0x) 2D-04-01-01-00" received
+I	05:42:55.104	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-06-01-01-03
+A	05:42:55.104	"(0x) 2D-06-01-01-03" received
+D	05:42:55.124	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+I	05:42:55.142	Connection parameters updated (interval: 15.0ms, latency: 0, timeout: 5000ms)
+I	05:42:55.247	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-07-01-01-01
+A	05:42:55.247	"(0x) 2D-07-01-01-01" received
+I	05:42:55.314	Connection parameters updated (interval: 11.25ms, latency: 2, timeout: 3000ms)
+I	05:42:55.775	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32
+A	05:42:55.775	"(0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32" received
+I	05:42:55.789	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	05:42:55.790	"1%" received
+I	05:42:55.877	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	05:42:55.877	"(0x) 2B-70-01-01-01" received
+V	05:42:56.732	Discovering services...
+D	05:42:56.732	gatt.discoverServices()
+D	05:42:56.740	[Callback] Services discovered with status: 0
+I	05:42:56.740	Services discovered
+V	05:42:56.745	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	05:42:56.745	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	05:42:56.747	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	05:42:56.748	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	05:42:56.749	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+I	05:42:57.139	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-00-00-00-00-0A-EB-00-05-03-14-1F-01
+A	05:42:57.139	"(0x) 2D-02-01-0C-00-00-00-00-0A-EB-00-05-03-14-1F-01" received
+I	05:42:57.151	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8E-06-F6-16-00-04-0C-00-81-CF
+A	05:42:57.151	"(0x) 2D-02-01-0C-01-95-8E-06-F6-16-00-04-0C-00-81-CF" received
+I	05:42:57.151	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-02-01-0C-01-95-8E-06-F6-1F-00-04-0C-00-81-CF
+A	05:42:57.151	"(0x) 2D-02-01-0C-01-95-8E-06-F6-1F-00-04-0C-00-81-CF" received
+D	05:43:01.416	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:43:01.416	Disconnected
+D	05:43:01.481	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	05:46:39.305	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	05:46:39.305	Connected to 70:61:EE:C1:5D:04
+D	05:46:39.306	wait(1600ms)
+I	05:46:39.307	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	05:46:39.307	"(0x) 2D-04-01-01-00" received
+I	05:46:39.325	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-06-01-01-03
+A	05:46:39.325	"(0x) 2D-06-01-01-03" received
+D	05:46:39.333	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+I	05:46:39.398	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-07-01-01-01
+A	05:46:39.398	"(0x) 2D-07-01-01-01" received
+I	05:46:39.408	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32
+A	05:46:39.408	"(0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32" received
+I	05:46:39.418	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	05:46:39.418	"1%" received
+I	05:46:39.509	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	05:46:39.509	"(0x) 2B-70-01-01-01" received
+V	05:46:40.916	Discovering services...
+D	05:46:40.916	gatt.discoverServices()
+D	05:46:40.928	[Callback] Services discovered with status: 0
+I	05:46:40.928	Services discovered
+V	05:46:40.939	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	05:46:40.939	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	05:46:40.942	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	05:46:40.945	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	05:46:40.947	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+D	05:46:43.068	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:46:43.068	Disconnected
+D	05:46:43.237	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	05:48:57.071	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+D	05:48:57.074	gatt.close()
+D	05:48:57.077	wait(200)
+V	05:48:57.316	Connecting to 70:61:EE:C1:5D:04...
+D	05:48:57.316	gatt = device.connectGatt(autoConnect = false, TRANSPORT_LE, preferred PHY = LE 1M)
+D	05:48:57.347	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	05:48:57.347	Connected to 70:61:EE:C1:5D:04
+D	05:48:57.347	wait(1600ms)
+I	05:48:57.632	Connection parameters updated (interval: 15.0ms, latency: 0, timeout: 5000ms)
+I	05:48:57.898	Connection parameters updated (interval: 11.25ms, latency: 2, timeout: 3000ms)
+V	05:48:58.985	Discovering services...
+D	05:48:58.985	gatt.discoverServices()
+D	05:48:59.004	[Callback] Services discovered with status: 0
+I	05:48:59.004	Services discovered
+V	05:48:59.027	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	05:48:59.028	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	05:48:59.031	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	05:48:59.035	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	05:48:59.038	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+I	05:48:59.092	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	05:48:59.092	"(0x) 2B-70-01-01-01" received
+D	05:49:06.039	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:49:06.039	Disconnected
+D	05:49:06.082	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	05:51:24.360	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	05:51:24.360	Connected to 70:61:EE:C1:5D:04
+D	05:51:24.360	wait(1600ms)
+I	05:51:24.380	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	05:51:24.380	"(0x) 2D-04-01-01-00" received
+I	05:51:24.380	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-06-01-01-03
+A	05:51:24.380	"(0x) 2D-06-01-01-03" received
+D	05:51:24.387	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+I	05:51:24.423	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-07-01-01-01
+A	05:51:24.423	"(0x) 2D-07-01-01-01" received
+I	05:51:24.965	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32
+A	05:51:24.965	"(0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32" received
+I	05:51:24.968	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	05:51:24.968	"1%" received
+I	05:51:25.061	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	05:51:25.061	"(0x) 2B-70-01-01-01" received
+V	05:51:26.000	Discovering services...
+D	05:51:26.000	gatt.discoverServices()
+D	05:51:26.015	[Callback] Services discovered with status: 0
+I	05:51:26.015	Services discovered
+V	05:51:26.037	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	05:51:26.037	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	05:51:26.041	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	05:51:26.045	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	05:51:26.048	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+D	05:51:29.051	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:51:29.051	Disconnected
+D	05:51:29.218	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	05:57:17.082	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+D	05:57:17.082	gatt.close()
+D	05:57:17.095	wait(200)
+V	05:57:17.336	Connecting to 70:61:EE:C1:5D:04...
+D	05:57:17.336	gatt = device.connectGatt(autoConnect = false, TRANSPORT_LE, preferred PHY = LE 1M)
+D	05:57:17.348	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	05:57:17.348	Connected to 70:61:EE:C1:5D:04
+D	05:57:17.348	wait(1600ms)
+I	05:57:17.651	Connection parameters updated (interval: 15.0ms, latency: 0, timeout: 5000ms)
+I	05:57:17.926	Connection parameters updated (interval: 11.25ms, latency: 2, timeout: 3000ms)
+V	05:57:18.989	Discovering services...
+D	05:57:18.989	gatt.discoverServices()
+D	05:57:19.001	[Callback] Services discovered with status: 0
+I	05:57:19.001	Services discovered
+V	05:57:19.021	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	05:57:19.021	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	05:57:19.025	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	05:57:19.029	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	05:57:19.032	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+I	05:57:19.102	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	05:57:19.102	"(0x) 2B-70-01-01-01" received
+D	05:57:22.322	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	05:57:22.322	Disconnected
+D	05:57:22.522	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	06:05:25.394	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	06:05:25.394	Connected to 70:61:EE:C1:5D:04
+D	06:05:25.394	wait(1600ms)
+I	06:05:25.395	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-04-01-01-00
+A	06:05:25.395	"(0x) 2D-04-01-01-00" received
+I	06:05:25.395	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-06-01-01-03
+A	06:05:25.395	"(0x) 2D-06-01-01-03" received
+D	06:05:25.426	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	06:05:25.426	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+I	06:05:25.433	Disconnected
+I	06:05:25.475	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2D-07-01-01-01
+A	06:05:25.475	"(0x) 2D-07-01-01-01" received
+I	06:05:25.486	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32
+A	06:05:25.486	"(0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32" received
+I	06:05:25.496	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	06:05:25.496	"1%" received
+I	06:05:25.594	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	06:05:25.594	"(0x) 2B-70-01-01-01" received
+D	06:05:28.642	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+D	06:05:28.831	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	06:08:51.058	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+D	06:08:51.059	gatt.close()
+D	06:08:51.065	wait(200)
+V	06:08:51.292	Connecting to 70:61:EE:C1:5D:04...
+D	06:08:51.292	gatt = device.connectGatt(autoConnect = false, TRANSPORT_LE, preferred PHY = LE 1M)
+D	06:08:51.318	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	06:08:51.318	Connected to 70:61:EE:C1:5D:04
+D	06:08:51.319	wait(1600ms)
+I	06:08:51.637	Connection parameters updated (interval: 15.0ms, latency: 0, timeout: 5000ms)
+I	06:08:51.907	Connection parameters updated (interval: 11.25ms, latency: 2, timeout: 3000ms)
+V	06:08:52.960	Discovering services...
+D	06:08:52.960	gatt.discoverServices()
+D	06:08:52.979	[Callback] Services discovered with status: 0
+I	06:08:52.979	Services discovered
+V	06:08:53.001	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	06:08:53.001	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	06:08:53.006	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	06:08:53.009	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	06:08:53.013	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+I	06:08:53.026	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32
+A	06:08:53.026	"(0x) 01-07-03-11-30-31-2D-30-34-30-30-2E-30-32-30-37-2D-30-30-30-30-07-0D-43-44-35-36-20-31-2E-30-2E-30-2E-31-38-09-10-35-38-45-45-58-32-35-32-32-38-30-30-30-35-36-32" received
+I	06:08:53.046	Notification received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 01
+A	06:08:53.046	"1%" received
+I	06:08:53.113	Notification received from 0000fe42-cc7a-482a-984a-7f2ed5b3e512, value: (0x) 2B-70-01-01-01
+A	06:08:53.113	"(0x) 2B-70-01-01-01" received
+D	06:08:57.039	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	06:08:57.039	Disconnected
+D	06:08:57.225	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	06:12:18.061	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+D	06:12:18.061	gatt.close()
+D	06:12:18.066	wait(200)
+V	06:12:18.303	Connecting to 70:61:EE:C1:5D:04...
+D	06:12:18.303	gatt = device.connectGatt(autoConnect = false, TRANSPORT_LE, preferred PHY = LE 1M)
+D	06:12:18.329	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	06:12:18.329	Connected to 70:61:EE:C1:5D:04
+D	06:12:18.330	wait(1600ms)
+I	06:12:18.556	Connection parameters updated (interval: 15.0ms, latency: 0, timeout: 5000ms)
+I	06:12:18.796	Connection parameters updated (interval: 11.25ms, latency: 2, timeout: 3000ms)
+V	06:12:19.971	Discovering services...
+D	06:12:19.971	gatt.discoverServices()
+D	06:12:19.986	[Callback] Services discovered with status: 0
+I	06:12:19.986	Services discovered
+V	06:12:20.008	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	06:12:20.008	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	06:12:20.013	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	06:12:20.016	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	06:12:20.020	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+D	06:12:21.808	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	06:12:21.808	Disconnected
+D	06:12:21.854	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+D	06:28:01.216	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+D	06:28:01.216	gatt.close()
+D	06:28:01.227	wait(200)
+V	06:28:01.464	Connecting to 70:61:EE:C1:5D:04...
+D	06:28:01.465	gatt = device.connectGatt(autoConnect = false, TRANSPORT_LE, preferred PHY = LE 1M)
+D	06:28:01.486	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
+I	06:28:01.491	Disconnected
+D	06:28:31.496	[Callback] Connection state changed with status: 133 and new state: DISCONNECTED (0)
+E	06:28:31.506	Error 133 (0x85): GATT ERROR
+D	06:30:25.975	[Broadcast] Action received: android.bluetooth.device.action.ACL_CONNECTED
+D	06:30:25.975	gatt.close()
+D	06:30:25.984	wait(200)
+V	06:30:26.226	Connecting to 70:61:EE:C1:5D:04...
+D	06:30:26.226	gatt = device.connectGatt(autoConnect = false, TRANSPORT_LE, preferred PHY = LE 1M)
+D	06:30:26.251	[Callback] Connection state changed with status: 0 and new state: CONNECTED (2)
+I	06:30:26.251	Connected to 70:61:EE:C1:5D:04
+D	06:30:26.252	wait(1600ms)
+I	06:30:26.507	Connection parameters updated (interval: 15.0ms, latency: 0, timeout: 5000ms)
+I	06:30:26.773	Connection parameters updated (interval: 11.25ms, latency: 2, timeout: 3000ms)
+V	06:30:27.863	Discovering services...
+D	06:30:27.863	gatt.discoverServices()
+D	06:30:27.879	[Callback] Services discovered with status: 0
+I	06:30:27.879	Services discovered
+V	06:30:27.898	Generic Attribute (0x1801)
+- Service Changed [I R] (0x2A05)
+   Client Characteristic Configuration (0x2902)
+Generic Access (0x1800)
+- Device Name [R W] (0x2A00)
+- Appearance [R W] (0x2A01)
+- Peripheral Preferred Connection Parameters [R] (0x2A04)
+- Central Address Resolution [R] (0x2AA6)
+Device Information (0x180A)
+- Model Number String [R] (0x2A24)
+- Firmware Revision String [R] (0x2A26)
+- Hardware Revision String [R] (0x2A27)
+- Software Revision String [R] (0x2A28)
+- Manufacturer Name String [R] (0x2A29)
+- PnP ID [R] (0x2A50)
+- Serial Number String [R] (0x2A25)
+Human Interface Device (0x1812)
+- Report [N R] (0x2A4D)
+   Client Characteristic Configuration (0x2902)
+   Report Reference (0x2908)
+- Report Map [N R] (0x2A4B)
+- HID Information [R] (0x2A4A)
+- HID Control Point [WNR] (0x2A4C)
+Unknown Service (0000fe40-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [W WNR] (0000fe41-cc7a-482a-984a-7f2ed5b3e512)
+- Unknown Characteristic [N R] (0000fe42-cc7a-482a-984a-7f2ed5b3e512)
+   Client Characteristic Configuration (0x2902)
+Battery Service (0x180F)
+- Battery Level [N R] (0x2A19)
+   Client Characteristic Configuration (0x2902)
+D	06:30:27.898	gatt.setCharacteristicNotification(00002a05-0000-1000-8000-00805f9b34fb, true)
+D	06:30:27.903	gatt.setCharacteristicNotification(00002a4d-0000-1000-8000-00805f9b34fb, true)
+D	06:30:27.907	gatt.setCharacteristicNotification(0000fe42-cc7a-482a-984a-7f2ed5b3e512, true)
+D	06:30:27.911	gatt.setCharacteristicNotification(00002a19-0000-1000-8000-00805f9b34fb, true)
+D	06:30:29.887	[Callback] Connection state changed with status: 0 and new state: DISCONNECTED (0)
+I	06:30:29.887	Disconnected
+D	06:30:30.045	[Broadcast] Action received: android.bluetooth.device.action.ACL_DISCONNECTED
