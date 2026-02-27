@@ -185,18 +185,9 @@ def parse_charge_workbook(path: Path, require_voltage: bool) -> ChargeDataset:
     )
     index_col = _find_column(headers, lambda h: "索引" in h)
     date_col = _find_column(headers, lambda h: "日期" in h and "log" not in _normalize_header(h))
-    pen_col = _find_column(headers, lambda h: "笔壳" in h)
-    env_col = _find_column(headers, lambda h: "环境" in h)
-    parser_warnings: list[str] = []
-    if pen_col is not None and env_col is None:
-        temperature_candidates = [
-            col_idx
-            for col_idx, header_text in headers.items()
-            if "温度" in header_text and col_idx != pen_col
-        ]
-        if temperature_candidates:
-            env_col = temperature_candidates[0]
-            parser_warnings.append("未直接匹配到“环境”关键词，已使用另一列温度数据作为环境温度")
+    pen_col = _find_column(headers, lambda h: "笔壳" in h and "温度" in h)
+    env_col = _find_column(headers, lambda h: "环境" in h and "温度" in h)
+    has_temperature_data = pen_col is not None and env_col is not None
 
     if time_col is None:
         raise AppError("MISSING_TIME", "未检测到“时间 (s)”相关列", detail=str(path))
@@ -212,9 +203,9 @@ def parse_charge_workbook(path: Path, require_voltage: bool) -> ChargeDataset:
         excluded_columns.add(date_col)
     if voltage_col is not None:
         excluded_columns.add(voltage_col)
-    if pen_col is not None:
+    if has_temperature_data and pen_col is not None:
         excluded_columns.add(pen_col)
-    if env_col is not None:
+    if has_temperature_data and env_col is not None:
         excluded_columns.add(env_col)
     extra_headers = _build_extra_headers(headers, excluded_columns)
 
@@ -227,7 +218,7 @@ def parse_charge_workbook(path: Path, require_voltage: bool) -> ChargeDataset:
     pen_temps_c: list[float | None] = []
     env_temps_c: list[float | None] = []
     extras: dict[str, list[Any]] = {header: [] for _, header in extra_headers}
-    warnings: list[str] = parser_warnings.copy()
+    warnings: list[str] = []
 
     for row_idx in range(header_row + 1, sheet.max_row + 1):
         time_value = sheet.cell(row=row_idx, column=time_col).value
@@ -286,10 +277,10 @@ def parse_charge_workbook(path: Path, require_voltage: bool) -> ChargeDataset:
             )
 
     valid_current_values = [value for value in currents_ma if value is not None]
-    if valid_current_values and max(valid_current_values) < 0:
+    if valid_current_values and max(valid_current_values, key=lambda value: abs(value)) < 0:
         currents_ma = [(-value if value is not None else None) for value in currents_ma]
+        warnings.append("检测到电流方向与预期相反，已将整列电流取相反数后再进行后续统计")
 
-    has_temperature_data = pen_col is not None and env_col is not None
     return ChargeDataset(
         source_path=path,
         stem=path.stem,

@@ -13,6 +13,11 @@ from openpyxl.utils import get_column_letter
 from .models import ChargeDataset, ChargeMetrics, TemperatureMetrics
 
 
+DEFAULT_CHART_WIDTH = 16
+DEFAULT_CHART_HEIGHT = 10
+TEMP_CHART_ROW_GAP = 22
+
+
 @dataclass(slots=True)
 class _ColumnDef:
     header: str
@@ -24,7 +29,7 @@ def _format_float(value: float | None, unit: str = "") -> str:
     if value is None:
         return "未检测到符合要求的数据，请人工查看"
     if unit:
-        return f"{value:.3f}{unit}"
+        return f"{value:.3f} {unit}"
     return f"{value:.3f}"
 
 
@@ -107,8 +112,9 @@ def _add_curve_chart(
     chart_left.title = title
     chart_left.y_axis.title = "电流"
     chart_left.x_axis.title = "时间"
-    chart_left.width = 16
-    chart_left.height = 8
+    chart_left.legend.position = "b"
+    chart_left.width = DEFAULT_CHART_WIDTH
+    chart_left.height = DEFAULT_CHART_HEIGHT
 
     current_data = Reference(
         ws,
@@ -133,8 +139,9 @@ def _add_curve_chart(
         chart_right.y_axis.axId = 200
         chart_right.y_axis.title = "电压"
         chart_right.y_axis.crosses = "max"
-        chart_right.width = 16
-        chart_right.height = 8
+        chart_right.y_axis.majorGridlines = None
+        chart_right.width = DEFAULT_CHART_WIDTH
+        chart_right.height = DEFAULT_CHART_HEIGHT
         voltage_data = Reference(
             ws,
             min_col=voltage_col,
@@ -159,13 +166,26 @@ def _add_temp_chart(
     chart = LineChart()
     chart.title = title
     chart.y_axis.title = "温度"
-    chart.width = 16
-    chart.height = 8
+    chart.legend.position = "b"
+    chart.width = DEFAULT_CHART_WIDTH
+    chart.height = DEFAULT_CHART_HEIGHT
     pen_data = Reference(ws, min_col=pen_col, min_row=1, max_col=pen_col, max_row=last_data_row)
     env_data = Reference(ws, min_col=env_col, min_row=1, max_col=env_col, max_row=last_data_row)
     chart.add_data(pen_data, titles_from_data=True)
     chart.add_data(env_data, titles_from_data=True)
     ws.add_chart(chart, anchor_cell)
+
+
+def _center_cells_with_data(ws: Any) -> None:
+    center = Alignment(horizontal="center", vertical="center")
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
+        for cell in row:
+            value = cell.value
+            if value is None:
+                continue
+            if isinstance(value, str) and value.strip() == "":
+                continue
+            cell.alignment = center
 
 
 def render_charge_workbook(
@@ -225,9 +245,9 @@ def render_charge_workbook(
     if dataset.has_temperature_data and temperature_metrics is not None:
         temp_table_col = curve_table_col + 3
         temp_rows = [
-            ("笔壳最高温度", _format_float(temperature_metrics.max_pen_temp_c)),
-            ("对应的环境温度", _format_float(temperature_metrics.env_temp_at_max_pen_c)),
-            ("热点处温升", _format_float(temperature_metrics.hotspot_rise_c)),
+            ("笔壳最高温度", _format_float(temperature_metrics.max_pen_temp_c, "°C")),
+            ("对应的环境温度", _format_float(temperature_metrics.env_temp_at_max_pen_c, "°C")),
+            ("热点处温升", _format_float(temperature_metrics.hotspot_rise_c, "°C")),
         ]
         temp_table_end_row = _write_summary_table(
             sheet,
@@ -258,7 +278,7 @@ def render_charge_workbook(
     if dataset.has_temperature_data and temperature_metrics is not None:
         pen_col = header_to_col["笔壳温度 (°C)"]
         env_col = header_to_col["环境温度 (°C)"]
-        temp_anchor_row = chart_start_row + 18
+        temp_anchor_row = chart_start_row + TEMP_CHART_ROW_GAP
         temp_anchor = f"{get_column_letter(curve_table_col)}{temp_anchor_row}"
         _add_temp_chart(
             sheet,
@@ -270,5 +290,6 @@ def render_charge_workbook(
             env_col,
         )
 
+    _center_cells_with_data(sheet)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     workbook.save(output_path)
