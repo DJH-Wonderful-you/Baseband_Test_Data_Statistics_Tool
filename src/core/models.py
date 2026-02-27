@@ -1,0 +1,68 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any
+
+
+@dataclass(slots=True)
+class ProcessItemResult:
+    name: str
+    status: str
+    output_path: Path | None = None
+    error: str | None = None
+    warnings: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class BatchResult:
+    total: int
+    success: int
+    failed: int
+    items: list[ProcessItemResult]
+    warnings: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class MergeInputGroup:
+    stem: str
+    xlsx_path: Path
+    csv_path: Path
+
+
+@dataclass(slots=True)
+class ChargeMetrics:
+    precharge_current_ma: float | None
+    const_current_ma: float | None
+    cutoff_current_ma: float | None
+    full_voltage_v: float | None
+    duration: timedelta | None
+
+
+@dataclass(slots=True)
+class TemperatureMetrics:
+    max_pen_temp_c: float | None
+    env_temp_at_max_pen_c: float | None
+    hotspot_rise_c: float | None
+
+
+@dataclass(slots=True)
+class ChargeDataset:
+    source_path: Path
+    stem: str
+    index_values: list[int | None]
+    datetimes: list[datetime]
+    date_strings: list[str]
+    time_strings: list[str]
+    currents_ma: list[float | None]
+    voltages_v: list[float | None]
+    pen_temps_c: list[float | None]
+    env_temps_c: list[float | None]
+    extras: dict[str, list[Any]]
+    extra_headers_order: list[str]
+    has_temperature_data: bool
+    warnings: list[str] = field(default_factory=list)
+
+    def row_count(self) -> int:
+        return len(self.datetimes)
