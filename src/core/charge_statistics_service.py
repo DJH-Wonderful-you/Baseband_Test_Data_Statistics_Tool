@@ -142,7 +142,7 @@ def process_charge_statistics(
         _emit(logger, "WARN", warning)
 
     if not excel_files:
-        warning_message = "未检测到可处理的 .xlsx 文件"
+        warning_message = "未检测到可处理的 Excel 文件（.xlsx/.xls）"
         _emit(logger, "WARN", warning_message)
         return BatchResult(total=0, success=0, failed=0, items=[], warnings=[warning_message])
 

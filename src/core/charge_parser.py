@@ -5,12 +5,69 @@ import re
 from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any
+import zipfile
 
 from openpyxl import load_workbook
 from openpyxl.utils.datetime import from_excel
 
 from .errors import AppError
 from .models import ChargeDataset
+
+
+class _CellProxy:
+    def __init__(self, value: Any) -> None:
+        self.value = value
+
+
+class _SheetProxy:
+    def __init__(self, values: list[list[Any]]) -> None:
+        self._values = values
+        self.max_row = len(values)
+        self.max_column = max((len(row) for row in values), default=0)
+
+    def cell(self, row: int, column: int) -> _CellProxy:
+        if row <= 0 or column <= 0 or row > self.max_row:
+            return _CellProxy(None)
+        row_values = self._values[row - 1]
+        if column > len(row_values):
+            return _CellProxy(None)
+        return _CellProxy(row_values[column - 1])
+
+
+def _load_sheet(path: Path) -> tuple[Any, datetime]:
+    suffix = path.suffix.lower()
+    if suffix == ".xls":
+        # Some files are actually xlsx content but saved/renamed as .xls.
+        # Detect by zip signature and parse them as openpyxl workbooks.
+        if zipfile.is_zipfile(path):
+            with path.open("rb") as file_obj:
+                workbook = load_workbook(file_obj, data_only=True)
+            return workbook[workbook.sheetnames[0]], workbook.epoch
+        try:
+            import xlrd
+        except ModuleNotFoundError as exc:
+            raise AppError(
+                "XLS_DEPENDENCY_MISSING",
+                "检测到 .xls 文件，但缺少解析依赖 xlrd，请先安装 requirements.txt 后重试",
+                detail=str(path),
+            ) from exc
+        workbook = xlrd.open_workbook(path)
+        sheet = workbook.sheet_by_index(0)
+        rows: list[list[Any]] = []
+        for row_idx in range(sheet.nrows):
+            row_values: list[Any] = []
+            for col_idx in range(sheet.ncols):
+                cell = sheet.cell(row_idx, col_idx)
+                value: Any = cell.value
+                if cell.ctype == xlrd.XL_CELL_DATE:
+                    value = xlrd.xldate.xldate_as_datetime(value, workbook.datemode).replace(microsecond=0)
+                row_values.append(value)
+            rows.append(row_values)
+        epoch = datetime(1899, 12, 30) if workbook.datemode == 0 else datetime(1904, 1, 1)
+        return _SheetProxy(rows), epoch
+
+    workbook = load_workbook(path, data_only=True)
+    return workbook[workbook.sheetnames[0]], workbook.epoch
 
 
 def _normalize_header(text: str) -> str:
@@ -162,8 +219,7 @@ def _build_extra_headers(headers: dict[int, str], excluded_columns: set[int]) ->
 
 
 def parse_charge_workbook(path: Path, require_voltage: bool) -> ChargeDataset:
-    workbook = load_workbook(path, data_only=True)
-    sheet = workbook[workbook.sheetnames[0]]
+    sheet, epoch = _load_sheet(path)
     header_row = _find_header_row(sheet)
     headers = _read_headers(sheet, header_row)
     if not headers:
@@ -227,8 +283,8 @@ def parse_charge_workbook(path: Path, require_voltage: bool) -> ChargeDataset:
         fallback_date = None
         if date_col is not None:
             date_value = sheet.cell(row=row_idx, column=date_col).value
-            fallback_date = _parse_date_only(date_value, workbook.epoch)
-        dt_value = _parse_datetime_with_truncation(time_value, workbook.epoch, fallback_date)
+            fallback_date = _parse_date_only(date_value, epoch)
+        dt_value = _parse_datetime_with_truncation(time_value, epoch, fallback_date)
         if dt_value is None:
             raise AppError(
                 "INVALID_DATETIME",

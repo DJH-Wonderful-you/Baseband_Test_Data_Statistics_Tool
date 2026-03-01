@@ -64,7 +64,7 @@ class FileUploadWidget(QWidget):
         title_label.setObjectName("uploadTitle")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        hint_label = QLabel("支持 .xlsx / .csv 格式")
+        hint_label = QLabel("支持 .xlsx / .xls / .csv 格式")
         hint_label.setObjectName("uploadHint")
         hint_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -165,7 +165,7 @@ class FileUploadWidget(QWidget):
             self,
             "选择文件",
             str(Path.cwd()),
-            "Data Files (*.xlsx *.csv);;All Files (*.*)",
+            "Data Files (*.xlsx *.xls *.csv);;All Files (*.*)",
         )
         if selected:
             self.add_paths([Path(item) for item in selected])

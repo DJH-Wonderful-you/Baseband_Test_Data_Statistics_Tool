@@ -64,7 +64,7 @@ class AboutTab(QWidget):
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(28, 24, 28, 24)
         header_layout.setSpacing(8)
-        title = QLabel("基带测试数据统计工具 V0.5")
+        title = QLabel("基带测试数据统计工具 V0.6")
         title.setObjectName("aboutTitle")
         subtitle = QLabel("高效处理充电测试数据，统一输出统计结果与图表。")
         subtitle.setObjectName("aboutSubtitle")
@@ -94,11 +94,11 @@ class AboutTab(QWidget):
 
         notes = self._build_card(
             "📊 数据与结果说明",
-            "• 输入格式：本版本面向 .xlsx 与 .csv 数据\n"
+            "• 输入格式：本版本面向 .xlsx/.xls 与 .csv 数据\n"
             "• 输出规则：默认保留原文件名，若重名会自动追加 (1)、(2) 等序号\n"
             "• 批处理策略：单个文件/文件组失败不会中断其它任务\n"
             "• 温升数据：当检测到笔壳与环境温度列时，会自动追加温升统计结果\n"
-            "• V0.5：修复 WPS/Office 图表兼容差异，优化绘图区布局，补齐温升图坐标轴显示并支持标题字号调整",
+            "• V0.6：新增统计/合并操作防误触确认；支持 .xls 与 .xlsx 同等处理，并兼容后缀为 .xls 但实际为 xlsx 的文件。",
         )
         content_layout.addWidget(notes)
 
@@ -110,9 +110,9 @@ class AboutTab(QWidget):
         info_title = QLabel("ℹ️ 版本信息")
         info_title.setObjectName("aboutSectionTitle")
         info_body = QLabel(
-            "版本：V0.5\n"
+            "版本：V0.6\n"
             "开发人员：邓景华\n"
-            "开发日期：2026-02-28"
+            "开发日期：2026-03-01"
         )
         info_body.setObjectName("aboutBody")
         info_layout.addWidget(info_title)
@@ -142,6 +142,30 @@ class UpdateLogTab(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._entries = [
+            {
+                "version": "V0.6",
+                "title": "防误触提醒与 .xls/.xlsx 同等支持",
+                "time": "2026-03-01",
+                "detail": (
+                    "【版本目标】\n"
+                    "降低误操作风险，并统一 Excel 输入兼容性，确保 .xls 与 .xlsx 在充电测试流程中同等可用。\n\n"
+                    "【主要更新】\n"
+                    "1. 新增“防误触”二次确认弹窗：\n"
+                    "   - 点击“统计数据”时，若检测到上传内容包含 .csv，将提示可能误操作并要求确认。\n"
+                    "   - 点击“合并后统计数据”时，若未检测到 .csv，将提示可能误操作并要求确认。\n"
+                    "2. Excel 输入扩展为 .xlsx/.xls 同等处理：\n"
+                    "   - 统计数据与合并后统计数据流程均支持读取 .xlsx 与 .xls。\n"
+                    "   - 合并流程支持“同名 Excel（.xlsx/.xls）+ .csv”配对。\n"
+                    "3. 兼容异常后缀场景：\n"
+                    "   - 针对“文件后缀是 .xls，但实际内容是 xlsx”的情况，新增自动识别并按 xlsx 解析，避免报错中断。\n"
+                    "4. 界面与文案同步：\n"
+                    "   - 文件上传提示、选择器过滤条件、操作提示语同步更新为 .xlsx/.xls。\n"
+                    "5. 文档同步：\n"
+                    "   - 需求文档中 1.1 与 1.2.2 相关描述已同步更新，保持与实现一致。\n\n"
+                    "【兼容说明】\n"
+                    "本版本不改变统计指标计算口径，仅增强输入兼容性与操作防呆提示。"
+                ),
+            },
             {
                 "version": "V0.5",
                 "title": "图表兼容性修复与展示优化",
@@ -262,7 +286,7 @@ class UpdateLogTab(QWidget):
                     "   - 计算预充电流、恒流电流、截充电流、满充电压、充电时长。\n"
                     "   - 在满足条件时计算温升指标并输出图表。\n"
                     "3. 实现“合并后统计数据”功能：\n"
-                    "   - 按同名文件配对 xlsx + csv。\n"
+                    "   - 按同名文件配对 Excel（.xlsx/.xls）+ csv。\n"
                     "   - 依据秒级时间戳匹配电压数据后统一输出统计结果。\n"
                     "4. 批处理与输出：\n"
                     "   - 支持多文件/文件夹输入。\n"

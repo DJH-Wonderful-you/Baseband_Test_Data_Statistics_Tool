@@ -27,7 +27,7 @@ class BatchResult:
 @dataclass(slots=True)
 class MergeInputGroup:
     stem: str
-    xlsx_path: Path
+    excel_path: Path
     csv_path: Path
 
 

@@ -45,14 +45,14 @@ def process_charge_merge(inputs: list[Path], output_dir: Path, logger: Logger = 
         _emit(logger, "ERROR", pair_error)
 
     if not groups and not pair_errors:
-        warning_message = "未检测到可处理的 xlsx+csv 配对文件组"
+        warning_message = "未检测到可处理的 Excel+csv 配对文件组（Excel: .xlsx/.xls）"
         _emit(logger, "WARN", warning_message)
         return BatchResult(total=0, success=0, failed=0, items=[], warnings=[warning_message])
 
     for group in groups:
         _emit(logger, "INFO", f"开始处理（合并后统计数据）：{group.stem}")
         try:
-            dataset = parse_charge_workbook(group.xlsx_path, require_voltage=False)
+            dataset = parse_charge_workbook(group.excel_path, require_voltage=False)
             csv_mapping, csv_warnings = parse_voltage_csv(group.csv_path)
             dataset.warnings.extend(csv_warnings)
 

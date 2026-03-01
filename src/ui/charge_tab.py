@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 
 from src.core.charge_merge_service import process_charge_merge
 from src.core.charge_statistics_service import process_charge_statistics
+from src.core.file_collect import collect_files
 from src.core.logging_bus import LoggingBus
 from src.core.models import BatchResult
 from src.ui.components.file_upload import FileUploadWidget
@@ -73,7 +74,7 @@ class ChargeTab(QWidget):
         upload_layout.setContentsMargins(14, 20, 14, 14)
         upload_layout.setSpacing(10)
         upload_hint = QLabel(
-            "支持拖拽或选择文件/文件夹。统计数据仅处理 .xlsx；合并后统计数据会自动匹配同名 .xlsx + .csv。"
+            "支持拖拽或选择文件/文件夹。统计数据处理 Excel（.xlsx/.xls）；合并后统计数据会自动匹配同名 Excel（.xlsx/.xls）+ .csv。"
         )
         upload_hint.setObjectName("groupHint")
         upload_hint.setWordWrap(True)
@@ -253,11 +254,34 @@ class ChargeTab(QWidget):
             return None
         return inputs, Path(output_text)
 
+    def _contains_csv_file(self, inputs: list[Path]) -> bool:
+        files, _ = collect_files(inputs, {".csv"})
+        return bool(files)
+
+    def _confirm_continue(self, message: str) -> bool:
+        reply = QMessageBox.question(
+            self,
+            "操作确认",
+            message,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        return reply == QMessageBox.StandardButton.Yes
+
     def _run_statistics(self) -> None:
         validated = self._validate_before_run()
         if validated is None:
             return
         inputs, output_dir = validated
+        if self._contains_csv_file(inputs):
+            should_continue = self._confirm_continue(
+                "检测到当前上传内容包含 .csv 文件。\n"
+                "“统计数据”通常仅处理 Excel 文件（.xlsx/.xls），可能存在误操作。\n"
+                "是否仍继续执行“统计数据”？"
+            )
+            if not should_continue:
+                self._log("WARN", "已取消执行：统计数据（检测到 .csv 文件）")
+                return
         self._set_running(True)
         self._log("INFO", "开始执行：统计数据")
         try:
@@ -271,6 +295,15 @@ class ChargeTab(QWidget):
         if validated is None:
             return
         inputs, output_dir = validated
+        if not self._contains_csv_file(inputs):
+            should_continue = self._confirm_continue(
+                "未检测到 .csv 文件。\n"
+                "“合并后统计数据”需要使用 Excel（.xlsx/.xls）与 .csv 配对文件，可能存在误操作。\n"
+                "是否仍继续执行“合并后统计数据”？"
+            )
+            if not should_continue:
+                self._log("WARN", "已取消执行：合并后统计数据（未检测到 .csv 文件）")
+                return
         self._set_running(True)
         self._log("INFO", "开始执行：合并后统计数据")
         try:

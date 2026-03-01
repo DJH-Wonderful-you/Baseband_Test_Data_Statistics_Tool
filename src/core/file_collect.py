@@ -34,44 +34,44 @@ def collect_files(
 
 
 def collect_statistics_excel_files(input_paths: list[Path]) -> tuple[list[Path], list[str]]:
-    return collect_files(input_paths, {".xlsx"})
+    return collect_files(input_paths, {".xlsx", ".xls"})
 
 
 def collect_merge_groups(
     input_paths: list[Path],
 ) -> tuple[list[MergeInputGroup], list[str], list[str]]:
-    files, warnings = collect_files(input_paths, {".xlsx", ".csv"})
-    xlsx_by_stem: defaultdict[str, list[Path]] = defaultdict(list)
+    files, warnings = collect_files(input_paths, {".xlsx", ".xls", ".csv"})
+    excel_by_stem: defaultdict[str, list[Path]] = defaultdict(list)
     csv_by_stem: defaultdict[str, list[Path]] = defaultdict(list)
     for file_path in files:
         stem = file_path.stem
-        if file_path.suffix.lower() == ".xlsx":
-            xlsx_by_stem[stem].append(file_path)
+        if file_path.suffix.lower() in {".xlsx", ".xls"}:
+            excel_by_stem[stem].append(file_path)
         elif file_path.suffix.lower() == ".csv":
             csv_by_stem[stem].append(file_path)
 
     groups: list[MergeInputGroup] = []
     errors: list[str] = []
-    all_stems = sorted(set(xlsx_by_stem.keys()) | set(csv_by_stem.keys()))
+    all_stems = sorted(set(excel_by_stem.keys()) | set(csv_by_stem.keys()))
     for stem in all_stems:
-        xlsx_candidates = xlsx_by_stem.get(stem, [])
+        excel_candidates = excel_by_stem.get(stem, [])
         csv_candidates = csv_by_stem.get(stem, [])
-        if len(xlsx_candidates) == 1 and len(csv_candidates) == 1:
+        if len(excel_candidates) == 1 and len(csv_candidates) == 1:
             groups.append(
                 MergeInputGroup(
                     stem=stem,
-                    xlsx_path=xlsx_candidates[0],
+                    excel_path=excel_candidates[0],
                     csv_path=csv_candidates[0],
                 )
             )
             continue
-        if not xlsx_candidates:
-            errors.append(f"[{stem}] 缺少匹配的 .xlsx 文件")
+        if not excel_candidates:
+            errors.append(f"[{stem}] 缺少匹配的 Excel 文件（.xlsx/.xls）")
             continue
         if not csv_candidates:
             errors.append(f"[{stem}] 缺少匹配的 .csv 文件")
             continue
         errors.append(
-            f"[{stem}] 检测到多个同名文件（xlsx={len(xlsx_candidates)}, csv={len(csv_candidates)}），无法唯一配对"
+            f"[{stem}] 检测到多个同名文件（excel={len(excel_candidates)}, csv={len(csv_candidates)}），无法唯一配对"
         )
     return groups, errors, warnings
