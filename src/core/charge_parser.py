@@ -268,14 +268,6 @@ def parse_charge_workbook(path: Path, require_voltage: bool) -> ChargeDataset:
         (value * current_factor if value is not None else None) for value in currents_raw
     ]
 
-    if current_factor == 1.0:
-        valid_abs = [abs(v) for v in currents_ma if v is not None]
-        if valid_abs and 0 < max(valid_abs) <= 5:
-            currents_ma = [(v * 1000 if v is not None else None) for v in currents_ma]
-            warnings.append(
-                "检测到电流列标注为 mA 但量级偏小，已按 A->mA 进行自动换算（乘以1000）"
-            )
-
     valid_current_values = [value for value in currents_ma if value is not None]
     if valid_current_values and max(valid_current_values, key=lambda value: abs(value)) < 0:
         currents_ma = [(-value if value is not None else None) for value in currents_ma]

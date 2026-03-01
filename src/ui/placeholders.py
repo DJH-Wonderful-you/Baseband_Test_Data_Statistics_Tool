@@ -64,7 +64,7 @@ class AboutTab(QWidget):
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(28, 24, 28, 24)
         header_layout.setSpacing(8)
-        title = QLabel("基带测试数据统计工具 V0.4")
+        title = QLabel("基带测试数据统计工具 V0.5")
         title.setObjectName("aboutTitle")
         subtitle = QLabel("高效处理充电测试数据，统一输出统计结果与图表。")
         subtitle.setObjectName("aboutSubtitle")
@@ -98,7 +98,7 @@ class AboutTab(QWidget):
             "• 输出规则：默认保留原文件名，若重名会自动追加 (1)、(2) 等序号\n"
             "• 批处理策略：单个文件/文件组失败不会中断其它任务\n"
             "• 温升数据：当检测到笔壳与环境温度列时，会自动追加温升统计结果\n"
-            "• V0.4：温度列识别改为双关键词，电流方向修正采用绝对值最大值判定，输出单元格统一居中",
+            "• V0.5：修复 WPS/Office 图表兼容差异，优化绘图区布局，补齐温升图坐标轴显示并支持标题字号调整",
         )
         content_layout.addWidget(notes)
 
@@ -110,9 +110,9 @@ class AboutTab(QWidget):
         info_title = QLabel("ℹ️ 版本信息")
         info_title.setObjectName("aboutSectionTitle")
         info_body = QLabel(
-            "版本：V0.4\n"
+            "版本：V0.5\n"
             "开发人员：邓景华\n"
-            "开发日期：2026-02-27"
+            "开发日期：2026-02-28"
         )
         info_body.setObjectName("aboutBody")
         info_layout.addWidget(info_title)
@@ -142,6 +142,29 @@ class UpdateLogTab(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._entries = [
+            {
+                "version": "V0.5",
+                "title": "图表兼容性修复与展示优化",
+                "time": "2026-02-28",
+                "detail": (
+                    "【版本目标】\n"
+                    "修复同一 Excel 在 WPS 与 Office 中图表显示不一致问题，提升图表稳定性与可读性。\n\n"
+                    "【主要更新】\n"
+                    "1. 充电曲线图兼容性修复：\n"
+                    "   - 时间列改为原生 datetime 写入，并统一设置 hh:mm:ss 显示格式。\n"
+                    "   - 双坐标轴图显式绑定轴 ID 与交叉轴，修复 Office 中轴映射异常。\n"
+                    "2. 绘图区布局优化：\n"
+                    "   - 引入手动绘图区布局参数，仅缩放绘图区，不改变图表外框尺寸。\n"
+                    "   - 调整绘图区位置与留白，避免标题、图例与坐标轴标签相互遮挡。\n"
+                    "3. 温升图坐标轴修复：\n"
+                    "   - 显式设置温升图 X/Y 轴位置与标签显示，并补齐时间类目轴绑定。\n"
+                    "   - 修复温升图在 Office 中偶发缺少坐标轴显示的问题。\n"
+                    "4. 图表标题样式增强：\n"
+                    "   - 新增标题字号配置，默认统一提升并加粗。\n\n"
+                    "【兼容性说明】\n"
+                    "本版本主要涉及 Excel 图表生成与样式配置，不影响现有统计计算逻辑与批处理入口。"
+                ),
+            },
             {
                 "version": "V0.4",
                 "title": "规则修正与输出格式统一",

@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         self._apply_initial_size()
 
     def _build_ui(self) -> None:
-        self.setWindowTitle("基带测试数据统计工具 V0.4")
+        self.setWindowTitle("基带测试数据统计工具 V0.5")
         self.setMinimumSize(1100, 700)
 
         root_widget = QWidget()

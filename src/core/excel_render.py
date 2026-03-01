@@ -7,6 +7,8 @@ from typing import Any
 
 from openpyxl import Workbook
 from openpyxl.chart import LineChart, Reference
+from openpyxl.chart.layout import Layout, ManualLayout
+from openpyxl.drawing.text import CharacterProperties
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
@@ -16,6 +18,13 @@ from .models import ChargeDataset, ChargeMetrics, TemperatureMetrics
 DEFAULT_CHART_WIDTH = 16
 DEFAULT_CHART_HEIGHT = 10
 TEMP_CHART_ROW_GAP = 22
+
+# Shrink only the plot area (line region) while keeping the chart frame size unchanged.
+PLOT_AREA_X = 0.0
+PLOT_AREA_Y = 0.0
+PLOT_AREA_W = 0.9
+PLOT_AREA_H = 0.7
+CHART_TITLE_SIZE = 1600
 
 
 @dataclass(slots=True)
@@ -98,6 +107,22 @@ def _write_summary_table(
     return start_row + 1 + len(rows)
 
 
+def _apply_plot_area_layout(chart: LineChart) -> None:
+    chart.layout = Layout(
+        manualLayout=ManualLayout(
+            layoutTarget="outer",
+            x=PLOT_AREA_X,
+            y=PLOT_AREA_Y,
+            w=PLOT_AREA_W,
+            h=PLOT_AREA_H,
+            xMode="factor",
+            yMode="factor",
+            wMode="factor",
+            hMode="factor",
+        )
+    )
+
+
 def _add_curve_chart(
     ws: Any,
     anchor_cell: str,
@@ -108,13 +133,33 @@ def _add_curve_chart(
     current_col: int,
     voltage_col: int | None,
 ) -> None:
+    primary_x_axis_id = 500
+    primary_y_axis_id = 100
+    secondary_y_axis_id = 200
+
     chart_left = LineChart()
     chart_left.title = title
+    chart_left.title.tx.rich.p[0].r[0].rPr = CharacterProperties(sz=CHART_TITLE_SIZE, b=True)
+    chart_left.x_axis.axId = primary_x_axis_id
     chart_left.y_axis.title = "电流"
+    chart_left.y_axis.axId = primary_y_axis_id
+    chart_left.y_axis.axPos = "l"
+    chart_left.y_axis.delete = False
+    chart_left.y_axis.tickLblPos = "nextTo"
+    chart_left.y_axis.number_format = "0.000"
+    chart_left.y_axis.crosses = "min"
+    chart_left.y_axis.crossAx = primary_x_axis_id
     chart_left.x_axis.title = "时间"
+    chart_left.x_axis.axPos = "b"
+    chart_left.x_axis.delete = False
+    chart_left.x_axis.crossAx = primary_y_axis_id
+    # Keep X axis as native Excel time to avoid Office/WPS rendering differences.
+    chart_left.x_axis.number_format = "hh:mm:ss"
+    chart_left.x_axis.tickLblPos = "low"
     chart_left.legend.position = "b"
     chart_left.width = DEFAULT_CHART_WIDTH
     chart_left.height = DEFAULT_CHART_HEIGHT
+    _apply_plot_area_layout(chart_left)
 
     current_data = Reference(
         ws,
@@ -136,9 +181,15 @@ def _add_curve_chart(
 
     if voltage_col is not None:
         chart_right = LineChart()
-        chart_right.y_axis.axId = 200
+        chart_right.x_axis.axId = primary_x_axis_id
+        chart_right.y_axis.axId = secondary_y_axis_id
         chart_right.y_axis.title = "电压"
+        chart_right.y_axis.axPos = "r"
+        chart_right.y_axis.delete = False
+        chart_right.y_axis.tickLblPos = "nextTo"
+        chart_right.y_axis.number_format = "0.000"
         chart_right.y_axis.crosses = "max"
+        chart_right.y_axis.crossAx = primary_x_axis_id
         chart_right.y_axis.majorGridlines = None
         chart_right.width = DEFAULT_CHART_WIDTH
         chart_right.height = DEFAULT_CHART_HEIGHT
@@ -160,19 +211,41 @@ def _add_temp_chart(
     title: str,
     first_data_row: int,
     last_data_row: int,
+    time_col: int | None,
     pen_col: int,
     env_col: int,
 ) -> None:
     chart = LineChart()
     chart.title = title
+    chart.title.tx.rich.p[0].r[0].rPr = CharacterProperties(sz=CHART_TITLE_SIZE, b=True)
+    chart.x_axis.title = "时间"
+    chart.x_axis.axPos = "b"
+    chart.x_axis.delete = False
+    chart.x_axis.tickLblPos = "low"
+    chart.x_axis.number_format = "hh:mm:ss"
     chart.y_axis.title = "温度"
+    chart.y_axis.axPos = "l"
+    chart.y_axis.delete = False
+    chart.y_axis.tickLblPos = "nextTo"
+    chart.y_axis.number_format = "0.000"
+    chart.y_axis.crosses = "min"
     chart.legend.position = "b"
     chart.width = DEFAULT_CHART_WIDTH
     chart.height = DEFAULT_CHART_HEIGHT
+    _apply_plot_area_layout(chart)
     pen_data = Reference(ws, min_col=pen_col, min_row=1, max_col=pen_col, max_row=last_data_row)
     env_data = Reference(ws, min_col=env_col, min_row=1, max_col=env_col, max_row=last_data_row)
     chart.add_data(pen_data, titles_from_data=True)
     chart.add_data(env_data, titles_from_data=True)
+    if time_col is not None:
+        categories = Reference(
+            ws,
+            min_col=time_col,
+            min_row=first_data_row,
+            max_col=time_col,
+            max_row=last_data_row,
+        )
+        chart.set_categories(categories)
     ws.add_chart(chart, anchor_cell)
 
 
@@ -202,7 +275,7 @@ def render_charge_workbook(
     if any(value is not None for value in dataset.index_values):
         columns.append(_ColumnDef("索引", dataset.index_values))
     columns.append(_ColumnDef("日期", dataset.date_strings))
-    columns.append(_ColumnDef("时间 (s)", dataset.time_strings))
+    columns.append(_ColumnDef("时间 (s)", dataset.datetimes, number_format="hh:mm:ss"))
     columns.append(_ColumnDef("电流 (mA)", dataset.currents_ma, number_format="0.000"))
     if any(value is not None for value in dataset.voltages_v):
         columns.append(_ColumnDef("电压（V）", dataset.voltages_v, number_format="0.000"))
@@ -228,7 +301,7 @@ def render_charge_workbook(
         for col_idx, column in enumerate(columns, start=1):
             value = column.values[row_offset] if row_offset < len(column.values) else None
             cell = sheet.cell(row=row_idx, column=col_idx, value=value)
-            if column.number_format and isinstance(value, (int, float)):
+            if column.number_format and value is not None:
                 cell.number_format = column.number_format
 
     curve_table_col = len(columns) + 2
@@ -286,6 +359,7 @@ def render_charge_workbook(
             _temp_chart_title(dataset.stem),
             data_start_row,
             data_end_row,
+            time_col,
             pen_col,
             env_col,
         )
