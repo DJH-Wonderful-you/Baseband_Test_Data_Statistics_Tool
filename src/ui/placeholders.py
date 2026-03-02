@@ -64,7 +64,7 @@ class AboutTab(QWidget):
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(28, 24, 28, 24)
         header_layout.setSpacing(8)
-        title = QLabel("基带测试数据统计工具 V0.6")
+        title = QLabel("基带测试数据统计工具 V0.8")
         title.setObjectName("aboutTitle")
         subtitle = QLabel("高效处理充电测试数据，统一输出统计结果与图表。")
         subtitle.setObjectName("aboutSubtitle")
@@ -98,7 +98,8 @@ class AboutTab(QWidget):
             "• 输出规则：默认保留原文件名，若重名会自动追加 (1)、(2) 等序号\n"
             "• 批处理策略：单个文件/文件组失败不会中断其它任务\n"
             "• 温升数据：当检测到笔壳与环境温度列时，会自动追加温升统计结果\n"
-            "• V0.6：新增统计/合并操作防误触确认；支持 .xls 与 .xlsx 同等处理，并兼容后缀为 .xls 但实际为 xlsx 的文件。",
+            "• V0.7：完善重复秒级时间点处理，并将合并匹配规则调整为时间交集；支持 Excel/CSV 电流与电压来源互换。\n"
+            "• V0.8：新增 O.L 自动替换规则（使用后一个值），并基于 CSV Unit（V/mA/A）自动识别并补齐电流/电压数据。",
         )
         content_layout.addWidget(notes)
 
@@ -110,9 +111,9 @@ class AboutTab(QWidget):
         info_title = QLabel("ℹ️ 版本信息")
         info_title.setObjectName("aboutSectionTitle")
         info_body = QLabel(
-            "版本：V0.6\n"
+            "版本：V0.8\n"
             "开发人员：邓景华\n"
-            "开发日期：2026-03-01"
+            "开发日期：2026-03-02"
         )
         info_body.setObjectName("aboutBody")
         info_layout.addWidget(info_title)
@@ -142,6 +143,50 @@ class UpdateLogTab(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._entries = [
+            {
+                "version": "V0.8",
+                "title": "O.L 自动替换与 Unit 驱动的电流/电压补齐",
+                "time": "2026-03-02",
+                "detail": (
+                    "【版本目标】\n"
+                    "补齐“相反数据来源”场景下的细化规则，解决 O.L 异常值与单位识别问题，确保合并后结果稳定。\n\n"
+                    "【主要更新】\n"
+                    "1. 新增 O.L 自动替换规则：\n"
+                    "   - Excel 电流列、电压列：若检测到 O.L，使用后一个值替换后再参与计算。\n"
+                    "   - CSV Value 列：时间交集筛选后，若检测到 O.L，同样使用后一个值替换。\n"
+                    "2. CSV Unit 驱动映射策略：\n"
+                    "   - Unit=V：CSV 作为电压列补入，Excel 需提供电流列。\n"
+                    "   - Unit=mA：CSV 作为电流列补入，Excel 需提供电压列。\n"
+                    "   - Unit=A：CSV 先按 A->mA（乘以1000）后作为电流列补入，Excel 需提供电压列。\n"
+                    "3. 冲突校验与错误提示完善：\n"
+                    "   - 新增来源冲突校验（如 Unit 与 Excel 已有列角色不匹配）并给出明确错误信息。\n"
+                    "4. 日志增强：\n"
+                    "   - 新增 CSV/Excel O.L 替换数量提示，便于追溯数据修复情况。\n\n"
+                    "【兼容说明】\n"
+                    "本版本在 V0.7 基础上增强异常值处理与单位识别，不改变核心统计指标定义。"
+                ),
+            },
+            {
+                "version": "V0.7",
+                "title": "重复秒级时间点修正与交集匹配",
+                "time": "2026-03-02",
+                "detail": (
+                    "【版本目标】\n"
+                    "提升“合并后统计数据”在时间异常场景下的健壮性，减少因时间点微小偏差导致的失败。\n\n"
+                    "【主要更新】\n"
+                    "1. 重复秒级时间点处理增强：\n"
+                    "   - 当重复秒前后存在缺失 1 秒时，自动修正前/后重复点为缺失秒。\n"
+                    "   - 无缺失秒场景下，保持“保留首次出现数据”的原有策略。\n"
+                    "2. 匹配规则调整：\n"
+                    "   - Excel 与 CSV 时间匹配由“Excel 全量必须匹配”改为“取两者时间点交集”。\n"
+                    "3. 合并来源灵活化：\n"
+                    "   - 支持 Excel 与 CSV 的电流/电压来源不固定，可由任一侧提供对应列数据。\n"
+                    "4. 日志与文档同步：\n"
+                    "   - 增加重复秒修正与交集过滤相关提示，需求文档 1.2.2 同步更新。\n\n"
+                    "【兼容说明】\n"
+                    "本版本主要调整时间匹配与来源判定规则，不改变统计结果计算口径。"
+                ),
+            },
             {
                 "version": "V0.6",
                 "title": "防误触提醒与 .xls/.xlsx 同等支持",
