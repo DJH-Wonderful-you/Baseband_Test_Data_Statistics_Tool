@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from pathlib import Path
 from typing import Any, Callable
 
@@ -23,6 +24,12 @@ Logger = Callable[[str, str], None] | None
 def _emit(logger: Logger, level: str, message: str) -> None:
     if logger is not None:
         logger(level, message)
+
+
+def _format_wait_seconds(value: float) -> str:
+    if float(value).is_integer():
+        return str(int(value))
+    return f"{value:.2f}".rstrip("0").rstrip(".")
 
 
 def _stem_from_pair_error(message: str) -> str:
@@ -114,7 +121,13 @@ def _parse_numeric_series(values: list[Any], file_name: str) -> list[float]:
     return parsed_values
 
 
-def process_charge_merge(inputs: list[Path], output_dir: Path, logger: Logger = None) -> BatchResult:
+def process_charge_merge(
+    inputs: list[Path],
+    output_dir: Path,
+    logger: Logger = None,
+    chunk_size: int | None = None,
+    wait_seconds: float = 0.0,
+) -> BatchResult:
     output_dir.mkdir(parents=True, exist_ok=True)
     groups, pair_errors, collection_warnings = collect_merge_groups(inputs)
     for warning in collection_warnings:
@@ -124,14 +137,17 @@ def process_charge_merge(inputs: list[Path], output_dir: Path, logger: Logger = 
     for pair_error in pair_errors:
         stem = _stem_from_pair_error(pair_error)
         results.append(ProcessItemResult(name=stem, status="failed", error=pair_error))
-        _emit(logger, "ERROR", pair_error)
+        _emit(logger, "ERROR", f"[失败] {pair_error}")
 
     if not groups and not pair_errors:
         warning_message = "未检测到可处理的 Excel+csv 配对文件组（Excel: .xlsx/.xls）"
         _emit(logger, "WARN", warning_message)
         return BatchResult(total=0, success=0, failed=0, items=[], warnings=[warning_message])
 
-    for group in groups:
+    total_groups = len(groups)
+    use_pacing = chunk_size is not None and chunk_size > 0 and wait_seconds > 0
+    effective_chunk_size = chunk_size if use_pacing else 0
+    for index, group in enumerate(groups, start=1):
         _emit(logger, "INFO", f"开始处理（合并后统计数据）：{group.stem}")
         try:
             dataset = parse_charge_workbook(
@@ -216,7 +232,7 @@ def process_charge_merge(inputs: list[Path], output_dir: Path, logger: Logger = 
                     warnings=dataset.warnings.copy(),
                 )
             )
-            _emit(logger, "INFO", f"输出成功：{output_path}")
+            _emit(logger, "INFO", f"[成功] 输出成功：{output_path}")
             for warning in dataset.warnings:
                 _emit(logger, "WARN", f"{group.stem}：{warning}")
         except AppError as exc:
@@ -227,7 +243,7 @@ def process_charge_merge(inputs: list[Path], output_dir: Path, logger: Logger = 
                     error=str(exc),
                 )
             )
-            _emit(logger, "ERROR", f"{group.stem} 处理失败：{exc}")
+            _emit(logger, "ERROR", f"[失败] {group.stem} 处理失败：{exc}")
         except Exception as exc:  # pragma: no cover
             results.append(
                 ProcessItemResult(
@@ -236,7 +252,15 @@ def process_charge_merge(inputs: list[Path], output_dir: Path, logger: Logger = 
                     error=f"[UNEXPECTED] {exc}",
                 )
             )
-            _emit(logger, "ERROR", f"{group.stem} 处理失败：[UNEXPECTED] {exc}")
+            _emit(logger, "ERROR", f"[失败] {group.stem} 处理失败：[UNEXPECTED] {exc}")
+        if use_pacing and index % effective_chunk_size == 0 and index < total_groups:
+            remaining = total_groups - index
+            _emit(
+                logger,
+                "INFO",
+                f"已处理 {index}/{total_groups} 组文件，等待 {_format_wait_seconds(wait_seconds)} 秒后继续（剩余 {remaining} 组）",
+            )
+            time.sleep(wait_seconds)
 
     success_count = sum(1 for item in results if item.status == "success")
     failed_count = len(results) - success_count

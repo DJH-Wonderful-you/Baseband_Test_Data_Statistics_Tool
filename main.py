@@ -3,12 +3,15 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QApplication
 
 from src.ui.main_window import MainWindow
 
 
 def main() -> int:
+    QCoreApplication.setOrganizationName("RJHZ")
+    QCoreApplication.setApplicationName("Baseband_Test_Data_Statistics_Tool")
     app = QApplication(sys.argv)
     qss_path = Path(__file__).parent / "src" / "resources" / "styles.qss"
     if qss_path.exists():

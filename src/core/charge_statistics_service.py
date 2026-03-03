@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Callable
 
@@ -16,6 +17,12 @@ Logger = Callable[[str, str], None] | None
 def _emit(logger: Logger, level: str, message: str) -> None:
     if logger is not None:
         logger(level, message)
+
+
+def _format_wait_seconds(value: float) -> str:
+    if float(value).is_integer():
+        return str(int(value))
+    return f"{value:.2f}".rstrip("0").rstrip(".")
 
 
 def resolve_output_path(output_dir: Path, stem: str) -> Path:
@@ -134,7 +141,11 @@ def compute_temperature_metrics(dataset: ChargeDataset) -> TemperatureMetrics | 
 
 
 def process_charge_statistics(
-    inputs: list[Path], output_dir: Path, logger: Logger = None
+    inputs: list[Path],
+    output_dir: Path,
+    logger: Logger = None,
+    chunk_size: int | None = None,
+    wait_seconds: float = 0.0,
 ) -> BatchResult:
     output_dir.mkdir(parents=True, exist_ok=True)
     excel_files, collection_warnings = collect_statistics_excel_files(inputs)
@@ -147,7 +158,10 @@ def process_charge_statistics(
         return BatchResult(total=0, success=0, failed=0, items=[], warnings=[warning_message])
 
     results: list[ProcessItemResult] = []
-    for excel_file in excel_files:
+    total_files = len(excel_files)
+    use_pacing = chunk_size is not None and chunk_size > 0 and wait_seconds > 0
+    effective_chunk_size = chunk_size if use_pacing else 0
+    for index, excel_file in enumerate(excel_files, start=1):
         _emit(logger, "INFO", f"开始处理（统计数据）：{excel_file}")
         try:
             dataset = parse_charge_workbook(excel_file, require_voltage=True)
@@ -164,7 +178,7 @@ def process_charge_statistics(
                     warnings=dataset.warnings.copy(),
                 )
             )
-            _emit(logger, "INFO", f"输出成功：{output_path}")
+            _emit(logger, "INFO", f"[成功] 输出成功：{output_path}")
             for warning in dataset.warnings:
                 _emit(logger, "WARN", f"{excel_file.name}：{warning}")
         except AppError as exc:
@@ -175,7 +189,7 @@ def process_charge_statistics(
                     error=str(exc),
                 )
             )
-            _emit(logger, "ERROR", f"{excel_file.name} 处理失败：{exc}")
+            _emit(logger, "ERROR", f"[失败] {excel_file.name} 处理失败：{exc}")
         except Exception as exc:  # pragma: no cover
             results.append(
                 ProcessItemResult(
@@ -184,7 +198,15 @@ def process_charge_statistics(
                     error=f"[UNEXPECTED] {exc}",
                 )
             )
-            _emit(logger, "ERROR", f"{excel_file.name} 处理失败：[UNEXPECTED] {exc}")
+            _emit(logger, "ERROR", f"[失败] {excel_file.name} 处理失败：[UNEXPECTED] {exc}")
+        if use_pacing and index % effective_chunk_size == 0 and index < total_files:
+            remaining = total_files - index
+            _emit(
+                logger,
+                "INFO",
+                f"已处理 {index}/{total_files} 个文件，等待 {_format_wait_seconds(wait_seconds)} 秒后继续（剩余 {remaining} 个）",
+            )
+            time.sleep(wait_seconds)
 
     success_count = sum(1 for item in results if item.status == "success")
     failed_count = len(results) - success_count

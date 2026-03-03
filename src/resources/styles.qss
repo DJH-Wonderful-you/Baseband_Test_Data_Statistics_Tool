@@ -594,3 +594,143 @@ QToolTip {
     border: 1px solid #d5e5f3;
     border-radius: 14px;
 }
+
+/* 分批处理策略弹窗 */
+#batchPacingDialog {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 1,
+        stop: 0 #f5faff,
+        stop: 1 #edf5ff
+    );
+}
+
+#batchPacingHeader {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 rgba(220, 239, 255, 0.98),
+        stop: 1 rgba(237, 248, 255, 0.98)
+    );
+    border: 1px solid #c9dff2;
+    border-radius: 12px;
+}
+
+#batchPacingTitle {
+    color: #1f4f72;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+#batchPacingSubtitle {
+    color: #587896;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+#batchPacingOptions {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #d4e4f4;
+    border-radius: 12px;
+}
+
+#batchPacingToggleCard {
+    background: #f5f9fe;
+    border: 1px solid #d4e3f1;
+    border-radius: 10px;
+}
+
+#batchPacingToggleCard[state="on"] {
+    background: #eaf4ff;
+    border: 1px solid #9dc2e5;
+}
+
+#batchPacingToggleTitle {
+    color: #1e4f72;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#batchPacingToggleHint {
+    color: #5f809b;
+    font-size: 11px;
+}
+
+#batchPacingStatusBadge {
+    min-width: 58px;
+    padding: 2px 8px;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+#batchPacingStatusBadge[state="on"] {
+    color: #0f6b48;
+    background: #def5ea;
+    border: 1px solid #9ddabd;
+}
+
+#batchPacingStatusBadge[state="off"] {
+    color: #6a8499;
+    background: #edf2f6;
+    border: 1px solid #d2dde6;
+}
+
+#batchPacingDialog QLabel {
+    color: #4f708d;
+}
+
+#batchPacingDialog QSpinBox {
+    min-height: 24px;
+    padding: 2px 7px;
+    background: #ffffff;
+    border: 1px solid #cfe1f2;
+    border-radius: 6px;
+    color: #294a64;
+    font-size: 12px;
+}
+
+#batchPacingDialog QSpinBox:hover {
+    border-color: #93b5d3;
+}
+
+#batchPacingDialog QSpinBox:focus {
+    border: 2px solid #4b8fcd;
+    padding: 1px 6px;
+}
+
+#batchPacingUnit {
+    color: #587896;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#batchPacingFieldLabel {
+    color: #446886;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#batchPacingPreview {
+    margin-top: 2px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #cde1f4;
+    background: #eef6ff;
+    color: #2b5b80;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+#batchPacingPreview[state="off"] {
+    border-color: #d5e1eb;
+    background: #f4f8fb;
+    color: #6a8499;
+}
+
+#batchPacingButtons {
+    margin-top: 2px;
+}
+
+#batchPacingButtons QPushButton {
+    min-width: 88px;
+}

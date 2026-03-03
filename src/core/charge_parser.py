@@ -105,27 +105,6 @@ def _to_float(value: Any) -> float | None:
     return float(match.group(0))
 
 
-def _contains_ol_text(value: Any) -> bool:
-    if not isinstance(value, str):
-        return False
-    return "o.l" in value.strip().lower()
-
-
-def _replace_ol_with_next_value(values: list[Any]) -> int:
-    if len(values) < 2:
-        return 0
-    replaced_count = 0
-    for idx in range(len(values) - 2, -1, -1):
-        current_value = values[idx]
-        if _to_float(current_value) is not None:
-            continue
-        if not _contains_ol_text(current_value):
-            continue
-        values[idx] = values[idx + 1]
-        replaced_count += 1
-    return replaced_count
-
-
 def _parse_date_only(value: Any, epoch: datetime) -> date | None:
     if _is_empty(value):
         return None
@@ -419,15 +398,6 @@ def parse_charge_workbook(
         env_temps_c.append(record["env_temp_c"])
         for _, extra_name in extra_headers:
             extras[extra_name].append(record["extras"].get(extra_name))
-
-    if current_col is not None:
-        replaced_count = _replace_ol_with_next_value(current_raw_values)
-        if replaced_count > 0:
-            warnings.append(f"Excel 电流列检测到 {replaced_count} 个 O.L，已使用后一个值替换")
-    if voltage_col is not None:
-        replaced_count = _replace_ol_with_next_value(voltage_raw_values)
-        if replaced_count > 0:
-            warnings.append(f"Excel 电压列检测到 {replaced_count} 个 O.L，已使用后一个值替换")
 
     currents_raw = [_to_float(value) for value in current_raw_values]
     voltages_v = [_to_float(value) for value in voltage_raw_values]

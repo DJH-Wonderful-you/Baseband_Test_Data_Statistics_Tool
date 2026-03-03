@@ -1,19 +1,25 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QDragEnterEvent, QDropEvent
+from PySide6.QtCore import QRectF, QSettings, QSize, Qt
+from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter, QPen
 from PySide6.QtWidgets import (
+    QAbstractButton,
+    QAbstractSpinBox,
+    QDialog,
+    QDialogButtonBox,
     QFileDialog,
     QFrame,
     QGroupBox,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
-    QHBoxLayout,
+    QSpinBox,
     QSplitter,
     QTextEdit,
     QVBoxLayout,
@@ -28,12 +34,273 @@ from src.core.models import BatchResult
 from src.ui.components.file_upload import FileUploadWidget
 
 
+@dataclass(slots=True)
+class BatchPacingSettings:
+    enabled: bool = False
+    chunk_size: int = 4
+    wait_seconds: int = 3
+
+
+class SlideSwitch(QAbstractButton):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setCheckable(True)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFixedSize(46, 26)
+
+    def sizeHint(self) -> QSize:  # noqa: D401
+        return QSize(46, 26)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        _ = event
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+
+        base_rect = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+        radius = base_rect.height() / 2
+
+        if self.isEnabled():
+            on_track = QColor("#4b9fe3")
+            off_track = QColor("#c8d6e4")
+            border_color = QColor("#8fb2cf")
+            knob_border = QColor("#9eb6cb")
+        else:
+            on_track = QColor("#b9cee2")
+            off_track = QColor("#d8e1ea")
+            border_color = QColor("#c2ced8")
+            knob_border = QColor("#c2ced8")
+
+        painter.setPen(QPen(border_color, 1))
+        painter.setBrush(on_track if self.isChecked() else off_track)
+        painter.drawRoundedRect(base_rect, radius, radius)
+
+        margin = 3
+        knob_size = base_rect.height() - margin * 2
+        knob_x = (
+            base_rect.right() - margin - knob_size
+            if self.isChecked()
+            else base_rect.left() + margin
+        )
+        knob_rect = QRectF(knob_x, base_rect.top() + margin, knob_size, knob_size)
+
+        painter.setPen(QPen(knob_border, 1))
+        painter.setBrush(QColor("#ffffff"))
+        painter.drawEllipse(knob_rect)
+
+
+class BatchPacingDialog(QDialog):
+    def __init__(self, settings: BatchPacingSettings, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("batchPacingDialog")
+        self.setWindowTitle("分批处理策略")
+        self.setModal(True)
+        self.resize(500, 330)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 16, 18, 16)
+        layout.setSpacing(12)
+
+        header_frame = QFrame()
+        header_frame.setObjectName("batchPacingHeader")
+        header_layout = QVBoxLayout(header_frame)
+        header_layout.setContentsMargins(14, 12, 14, 12)
+        header_layout.setSpacing(4)
+
+        title_label = QLabel("分批处理策略")
+        title_label.setObjectName("batchPacingTitle")
+        subtitle_label = QLabel(
+            "当单次处理文件较多时，启用分批等待可减少部分杀毒软件拦截导致的连续处理失败。"
+        )
+        subtitle_label.setObjectName("batchPacingSubtitle")
+        subtitle_label.setWordWrap(True)
+        header_layout.addWidget(title_label)
+        header_layout.addWidget(subtitle_label)
+        layout.addWidget(header_frame)
+
+        options_frame = QFrame()
+        options_frame.setObjectName("batchPacingOptions")
+        options_layout = QVBoxLayout(options_frame)
+        options_layout.setContentsMargins(14, 12, 14, 12)
+        options_layout.setSpacing(10)
+
+        self.toggle_card = QFrame()
+        self.toggle_card.setObjectName("batchPacingToggleCard")
+        toggle_layout = QHBoxLayout(self.toggle_card)
+        toggle_layout.setContentsMargins(12, 10, 12, 10)
+        toggle_layout.setSpacing(10)
+
+        toggle_text_layout = QVBoxLayout()
+        toggle_text_layout.setContentsMargins(0, 0, 0, 0)
+        toggle_text_layout.setSpacing(2)
+        toggle_title = QLabel("策略开关")
+        toggle_title.setObjectName("batchPacingToggleTitle")
+        toggle_hint = QLabel("开启后将按“单批上限 + 批间等待”分批执行任务。")
+        toggle_hint.setObjectName("batchPacingToggleHint")
+        toggle_hint.setWordWrap(True)
+        toggle_text_layout.addWidget(toggle_title)
+        toggle_text_layout.addWidget(toggle_hint)
+        toggle_layout.addLayout(toggle_text_layout, stretch=1)
+
+        toggle_control_layout = QVBoxLayout()
+        toggle_control_layout.setContentsMargins(0, 0, 0, 0)
+        toggle_control_layout.setSpacing(6)
+        toggle_control_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.status_badge = QLabel()
+        self.status_badge.setObjectName("batchPacingStatusBadge")
+        self.status_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.enable_switch = SlideSwitch()
+        self.enable_switch.setObjectName("batchPacingSwitch")
+        self.enable_switch.setChecked(settings.enabled)
+        switch_row = QHBoxLayout()
+        switch_row.setContentsMargins(0, 0, 0, 0)
+        switch_row.setSpacing(8)
+        switch_row.addWidget(self.enable_switch)
+        switch_row.addWidget(self.status_badge)
+        toggle_control_layout.addLayout(switch_row)
+        toggle_layout.addLayout(toggle_control_layout)
+        options_layout.addWidget(self.toggle_card)
+
+        settings_row = QHBoxLayout()
+        settings_row.setContentsMargins(0, 0, 0, 0)
+        settings_row.setSpacing(10)
+
+        chunk_label = QLabel("单批上限")
+        chunk_label.setObjectName("batchPacingFieldLabel")
+        settings_row.addWidget(chunk_label)
+
+        self.chunk_size_spin = QSpinBox()
+        self.chunk_size_spin.setRange(1, 200)
+        self.chunk_size_spin.setValue(settings.chunk_size)
+        self.chunk_size_spin.setFixedWidth(74)
+        self.chunk_size_spin.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.chunk_size_spin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        settings_row.addWidget(self.chunk_size_spin)
+        self.chunk_size_unit_label = QLabel("个文件")
+        self.chunk_size_unit_label.setObjectName("batchPacingUnit")
+        settings_row.addWidget(self.chunk_size_unit_label)
+        settings_row.addSpacing(12)
+
+        wait_label = QLabel("批间等待")
+        wait_label.setObjectName("batchPacingFieldLabel")
+        settings_row.addWidget(wait_label)
+
+        self.wait_seconds_spin = QSpinBox()
+        self.wait_seconds_spin.setRange(1, 600)
+        self.wait_seconds_spin.setValue(settings.wait_seconds)
+        self.wait_seconds_spin.setFixedWidth(74)
+        self.wait_seconds_spin.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.wait_seconds_spin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        settings_row.addWidget(self.wait_seconds_spin)
+        self.wait_seconds_unit_label = QLabel("秒")
+        self.wait_seconds_unit_label.setObjectName("batchPacingUnit")
+        settings_row.addWidget(self.wait_seconds_unit_label)
+        settings_row.addStretch()
+        options_layout.addLayout(settings_row)
+
+        self.preview_label = QLabel()
+        self.preview_label.setObjectName("batchPacingPreview")
+        self.preview_label.setWordWrap(True)
+        options_layout.addWidget(self.preview_label)
+        layout.addWidget(options_frame)
+
+        self.enable_switch.toggled.connect(self._sync_enabled_state)
+        self.chunk_size_spin.valueChanged.connect(self._refresh_preview)
+        self.wait_seconds_spin.valueChanged.connect(self._refresh_preview)
+        self._sync_enabled_state(self.enable_switch.isChecked())
+
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
+        )
+        button_box.setObjectName("batchPacingButtons")
+        save_btn = button_box.button(QDialogButtonBox.StandardButton.Save)
+        cancel_btn = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+        if save_btn is not None:
+            save_btn.setText("保存")
+            save_btn.setProperty("accent", "primary")
+        if cancel_btn is not None:
+            cancel_btn.setText("取消")
+            cancel_btn.setProperty("accent", "subtle")
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        layout.addWidget(button_box)
+        for button in (save_btn, cancel_btn):
+            if button is None:
+                continue
+            style = button.style()
+            style.unpolish(button)
+            style.polish(button)
+            button.update()
+
+    def _sync_enabled_state(self, enabled: bool) -> None:
+        self.chunk_size_spin.setEnabled(enabled)
+        self.wait_seconds_spin.setEnabled(enabled)
+        self.chunk_size_unit_label.setEnabled(enabled)
+        self.wait_seconds_unit_label.setEnabled(enabled)
+        self.enable_switch.setEnabled(True)
+        state = "on" if enabled else "off"
+        if self.toggle_card.property("state") != state:
+            self.toggle_card.setProperty("state", state)
+            toggle_style = self.toggle_card.style()
+            toggle_style.unpolish(self.toggle_card)
+            toggle_style.polish(self.toggle_card)
+            self.toggle_card.update()
+        if self.status_badge.property("state") != state:
+            self.status_badge.setProperty("state", state)
+            badge_style = self.status_badge.style()
+            badge_style.unpolish(self.status_badge)
+            badge_style.polish(self.status_badge)
+            self.status_badge.update()
+        self.status_badge.setText("已开启" if enabled else "已关闭")
+        self._refresh_preview()
+
+    def _refresh_preview(self) -> None:
+        if not self.enable_switch.isChecked():
+            state = "off"
+            text = "当前状态：关闭。系统会连续处理所有文件，不做批间等待。"
+        else:
+            sample_total = 11
+            chunk_size = max(1, self.chunk_size_spin.value())
+            wait_seconds = self.wait_seconds_spin.value()
+            full_batches = sample_total // chunk_size
+            remainder = sample_total % chunk_size
+            chunk_parts = [str(chunk_size)] * full_batches
+            if remainder:
+                chunk_parts.append(str(remainder))
+            batch_count = len(chunk_parts)
+            chunk_expr = " + ".join(chunk_parts)
+            state = "on"
+            text = (
+                f"示例：上传 {sample_total} 个文件时，将分 {batch_count} 批处理（{chunk_expr}），"
+                f"批间等待 {wait_seconds} 秒。"
+            )
+        if self.preview_label.property("state") != state:
+            self.preview_label.setProperty("state", state)
+            style = self.preview_label.style()
+            style.unpolish(self.preview_label)
+            style.polish(self.preview_label)
+            self.preview_label.update()
+        self.preview_label.setText(text)
+
+    def current_settings(self) -> BatchPacingSettings:
+        return BatchPacingSettings(
+            enabled=self.enable_switch.isChecked(),
+            chunk_size=self.chunk_size_spin.value(),
+            wait_seconds=self.wait_seconds_spin.value(),
+        )
+
+
 class ChargeTab(QWidget):
+    BATCH_PACING_ENABLED_KEY = "charge_tab/batch_pacing/enabled"
+    BATCH_PACING_CHUNK_SIZE_KEY = "charge_tab/batch_pacing/chunk_size"
+    BATCH_PACING_WAIT_SECONDS_KEY = "charge_tab/batch_pacing/wait_seconds"
+
     def __init__(self, log_bus: LoggingBus) -> None:
         super().__init__()
         self.log_bus = log_bus
+        self.batch_pacing_settings = self._load_batch_pacing_settings()
         self.setAcceptDrops(True)
         self._build_ui()
+        self._refresh_batch_pacing_hint()
         self.log_bus.subscribe(self._append_runtime_log)
 
     def _build_ui(self) -> None:
@@ -110,7 +377,9 @@ class ChargeTab(QWidget):
         output_layout = QVBoxLayout(output_group)
         output_layout.setContentsMargins(14, 20, 14, 14)
         output_layout.setSpacing(10)
-        output_hint = QLabel("默认输出到项目目录下 output 文件夹，你也可以手动切换。")
+        output_hint = QLabel(
+            "默认输出到项目目录下 output 文件夹；如需降低批量处理失败风险，可在右侧“分批策略...”中设置分批等待。"
+        )
         output_hint.setObjectName("groupHint")
         output_hint.setWordWrap(True)
         output_row = QHBoxLayout()
@@ -120,11 +389,18 @@ class ChargeTab(QWidget):
         self.output_edit = QLineEdit(str((Path.cwd() / "output").resolve()))
         self.output_edit.setObjectName("pathEdit")
         self.browse_output_btn = QPushButton("浏览")
+        self.batch_pacing_btn = QPushButton("分批策略...")
+        self.batch_pacing_btn.setProperty("accent", "warn")
         output_row.addWidget(output_label)
         output_row.addWidget(self.output_edit, stretch=1)
         output_row.addWidget(self.browse_output_btn)
+        output_row.addWidget(self.batch_pacing_btn)
+        self.batch_pacing_hint = QLabel()
+        self.batch_pacing_hint.setObjectName("groupHint")
+        self.batch_pacing_hint.setWordWrap(True)
         output_layout.addWidget(output_hint)
         output_layout.addLayout(output_row)
+        output_layout.addWidget(self.batch_pacing_hint)
         left_layout.addWidget(output_group)
 
         right_panel = QGroupBox("运行日志")
@@ -152,6 +428,7 @@ class ChargeTab(QWidget):
         root_layout.addWidget(horizontal_splitter, stretch=1)
 
         self.browse_output_btn.clicked.connect(self._on_select_output)
+        self.batch_pacing_btn.clicked.connect(self._open_batch_pacing_dialog)
         self.statistics_btn.clicked.connect(self._run_statistics)
         self.merge_btn.clicked.connect(self._run_merge)
 
@@ -230,12 +507,98 @@ class ChargeTab(QWidget):
         if folder:
             self.output_edit.setText(folder)
 
+    @staticmethod
+    def _to_bool(value: object, default: bool) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.strip().lower() in {"1", "true", "yes", "on"}
+        if isinstance(value, (int, float)):
+            return value != 0
+        return default
+
+    @staticmethod
+    def _to_int(value: object, default: int) -> int:
+        if isinstance(value, bool):
+            return default
+        if isinstance(value, (int, float)):
+            return int(value)
+        if isinstance(value, str):
+            try:
+                return int(value.strip())
+            except ValueError:
+                return default
+        return default
+
+    def _load_batch_pacing_settings(self) -> BatchPacingSettings:
+        settings = QSettings()
+        enabled = self._to_bool(
+            settings.value(self.BATCH_PACING_ENABLED_KEY, False),
+            default=False,
+        )
+        chunk_size = max(
+            1,
+            self._to_int(settings.value(self.BATCH_PACING_CHUNK_SIZE_KEY, 4), default=4),
+        )
+        wait_seconds = max(
+            1,
+            self._to_int(settings.value(self.BATCH_PACING_WAIT_SECONDS_KEY, 3), default=3),
+        )
+        return BatchPacingSettings(
+            enabled=enabled,
+            chunk_size=chunk_size,
+            wait_seconds=wait_seconds,
+        )
+
+    def _save_batch_pacing_settings(self) -> None:
+        settings = QSettings()
+        settings.setValue(self.BATCH_PACING_ENABLED_KEY, self.batch_pacing_settings.enabled)
+        settings.setValue(self.BATCH_PACING_CHUNK_SIZE_KEY, self.batch_pacing_settings.chunk_size)
+        settings.setValue(self.BATCH_PACING_WAIT_SECONDS_KEY, self.batch_pacing_settings.wait_seconds)
+        settings.sync()
+
+    def _refresh_batch_pacing_hint(self) -> None:
+        if self.batch_pacing_settings.enabled:
+            self.batch_pacing_hint.setText(
+                "说明：分批策略已启用。当前按每批 "
+                f"{self.batch_pacing_settings.chunk_size} 个文件执行，批间等待 "
+                f"{self.batch_pacing_settings.wait_seconds} 秒。"
+            )
+            return
+        self.batch_pacing_hint.setText(
+            "说明：分批策略默认关闭。开启后可按“每批文件数 + 等待秒数”分批执行。"
+        )
+
+    def _open_batch_pacing_dialog(self) -> None:
+        dialog = BatchPacingDialog(self.batch_pacing_settings, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        updated = dialog.current_settings()
+        if updated == self.batch_pacing_settings:
+            return
+        self.batch_pacing_settings = updated
+        self._save_batch_pacing_settings()
+        self._refresh_batch_pacing_hint()
+        if updated.enabled:
+            self._log(
+                "INFO",
+                f"分批策略已更新：每批 {updated.chunk_size} 个文件，批间等待 {updated.wait_seconds} 秒",
+            )
+            return
+        self._log("INFO", "分批策略已关闭")
+
+    def _effective_pacing(self) -> tuple[int | None, int]:
+        if not self.batch_pacing_settings.enabled:
+            return None, 0
+        return self.batch_pacing_settings.chunk_size, self.batch_pacing_settings.wait_seconds
+
     def _current_inputs(self) -> list[Path]:
         return self.file_upload.get_paths()
 
     def _set_running(self, running: bool) -> None:
         for button in (
             self.browse_output_btn,
+            self.batch_pacing_btn,
             self.statistics_btn,
             self.merge_btn,
             self.clear_log_btn,
@@ -284,8 +647,17 @@ class ChargeTab(QWidget):
                 return
         self._set_running(True)
         self._log("INFO", "开始执行：统计数据")
+        chunk_size, wait_seconds = self._effective_pacing()
+        if chunk_size is not None:
+            self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
         try:
-            result = process_charge_statistics(inputs, output_dir, logger=self._log)
+            result = process_charge_statistics(
+                inputs,
+                output_dir,
+                logger=self._log,
+                chunk_size=chunk_size,
+                wait_seconds=wait_seconds,
+            )
             self._log_batch_summary("统计数据", result)
         finally:
             self._set_running(False)
@@ -306,8 +678,17 @@ class ChargeTab(QWidget):
                 return
         self._set_running(True)
         self._log("INFO", "开始执行：合并后统计数据")
+        chunk_size, wait_seconds = self._effective_pacing()
+        if chunk_size is not None:
+            self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
         try:
-            result = process_charge_merge(inputs, output_dir, logger=self._log)
+            result = process_charge_merge(
+                inputs,
+                output_dir,
+                logger=self._log,
+                chunk_size=chunk_size,
+                wait_seconds=wait_seconds,
+            )
             self._log_batch_summary("合并后统计数据", result)
         finally:
             self._set_running(False)
@@ -317,11 +698,6 @@ class ChargeTab(QWidget):
             "INFO",
             f"{action}完成：总计 {result.total}，成功 {result.success}，失败 {result.failed}",
         )
-        for item in result.items:
-            if item.status == "success":
-                self._log("INFO", f"[成功] {item.name} -> {item.output_path}")
-            else:
-                self._log("ERROR", f"[失败] {item.name} -> {item.error}")
 
     def closeEvent(self, event) -> None:  # noqa: N802
         self.log_bus.unsubscribe(self._append_runtime_log)
