@@ -289,6 +289,211 @@ class BatchPacingDialog(QDialog):
         )
 
 
+class ProcessModeDialog(QDialog):
+    MODE_SINGLE = "single"
+    MODE_MERGE = "merge"
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.selected_mode: str | None = None
+        self.setObjectName("modeSelectDialog")
+        self.setWindowTitle("选择统计模式")
+        self.setModal(True)
+        self.resize(520, 360)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 16, 18, 16)
+        layout.setSpacing(12)
+
+        header = QFrame()
+        header.setObjectName("modeSelectHeader")
+        header_layout = QVBoxLayout(header)
+        header_layout.setContentsMargins(14, 12, 14, 12)
+        header_layout.setSpacing(4)
+
+        title = QLabel("选择统计模式")
+        title.setObjectName("modeSelectTitle")
+        subtitle = QLabel("点击下方模式按钮后立即执行。两种模式对应原有两条处理流程。")
+        subtitle.setObjectName("modeSelectSubtitle")
+        subtitle.setWordWrap(True)
+        header_layout.addWidget(title)
+        header_layout.addWidget(subtitle)
+        layout.addWidget(header)
+
+        options = QFrame()
+        options.setObjectName("modeSelectOptions")
+        options_layout = QVBoxLayout(options)
+        options_layout.setContentsMargins(14, 12, 14, 12)
+        options_layout.setSpacing(10)
+
+        single_card = self._build_mode_card(
+            title="单文件模式",
+            description="仅处理 Excel（.xlsx/.xls），用于统计“充电曲线”数据。",
+            button_text="执行单文件模式",
+            button_accent="success",
+            card_kind="single",
+            mode=self.MODE_SINGLE,
+        )
+        merge_card = self._build_mode_card(
+            title="合并模式",
+            description="按同名 Excel + .csv 配对处理，用于同时统计“充电曲线”和“充电温升”数据。",
+            button_text="执行合并模式",
+            button_accent="primary",
+            card_kind="merge",
+            mode=self.MODE_MERGE,
+        )
+        options_layout.addWidget(single_card)
+        options_layout.addWidget(merge_card)
+        layout.addWidget(options)
+
+        footer = QHBoxLayout()
+        footer.setContentsMargins(0, 2, 0, 0)
+        footer.addStretch()
+        cancel_btn = QPushButton("取消")
+        cancel_btn.setProperty("accent", "subtle")
+        cancel_btn.clicked.connect(self.reject)
+        footer.addWidget(cancel_btn)
+        layout.addLayout(footer)
+
+        style = cancel_btn.style()
+        style.unpolish(cancel_btn)
+        style.polish(cancel_btn)
+        cancel_btn.update()
+
+    def _build_mode_card(
+        self,
+        *,
+        title: str,
+        description: str,
+        button_text: str,
+        button_accent: str,
+        card_kind: str,
+        mode: str,
+    ) -> QFrame:
+        card = QFrame()
+        card.setObjectName("modeOptionCard")
+        card.setProperty("kind", card_kind)
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(12, 10, 12, 10)
+        card_layout.setSpacing(8)
+
+        title_label = QLabel(title)
+        title_label.setObjectName("modeOptionTitle")
+        desc_label = QLabel(description)
+        desc_label.setObjectName("modeOptionDesc")
+        desc_label.setWordWrap(True)
+
+        action_row = QHBoxLayout()
+        action_row.setContentsMargins(0, 0, 0, 0)
+        action_row.setSpacing(8)
+        action_row.addStretch()
+        action_btn = QPushButton(button_text)
+        action_btn.setObjectName("modeOptionBtn")
+        action_btn.setProperty("accent", button_accent)
+        action_btn.clicked.connect(lambda _=False, selected=mode: self._select_mode(selected))
+        action_row.addWidget(action_btn)
+
+        card_layout.addWidget(title_label)
+        card_layout.addWidget(desc_label)
+        card_layout.addLayout(action_row)
+        return card
+
+    def _select_mode(self, mode: str) -> None:
+        self.selected_mode = mode
+        self.accept()
+
+
+class SafeConfirmDialog(QDialog):
+    def __init__(
+        self,
+        *,
+        title: str,
+        message: str,
+        confirm_text: str = "仍继续执行",
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.setObjectName("safeConfirmDialog")
+        self.setWindowTitle("防误触提醒")
+        self.setModal(True)
+        self.resize(470, 280)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 16, 18, 16)
+        layout.setSpacing(12)
+
+        header = QFrame()
+        header.setObjectName("safeConfirmHeader")
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(14, 12, 14, 12)
+        header_layout.setSpacing(10)
+
+        icon = QLabel("!")
+        icon.setObjectName("safeConfirmIcon")
+        icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header_layout.addWidget(icon)
+
+        text_layout = QVBoxLayout()
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.setSpacing(3)
+        title_label = QLabel(title)
+        title_label.setObjectName("safeConfirmTitle")
+        subtitle_label = QLabel("请确认当前模式与上传文件类型匹配，避免误处理。")
+        subtitle_label.setObjectName("safeConfirmSubtitle")
+        subtitle_label.setWordWrap(True)
+        text_layout.addWidget(title_label)
+        text_layout.addWidget(subtitle_label)
+        header_layout.addLayout(text_layout, stretch=1)
+        layout.addWidget(header)
+
+        body = QFrame()
+        body.setObjectName("safeConfirmBody")
+        body_layout = QVBoxLayout(body)
+        body_layout.setContentsMargins(12, 10, 12, 10)
+        body_layout.setSpacing(6)
+        message_label = QLabel(message)
+        message_label.setObjectName("safeConfirmMessage")
+        message_label.setWordWrap(True)
+        body_layout.addWidget(message_label)
+        layout.addWidget(body)
+
+        button_row = QHBoxLayout()
+        button_row.setContentsMargins(0, 2, 0, 0)
+        button_row.addStretch()
+        cancel_btn = QPushButton("返回检查")
+        cancel_btn.setProperty("accent", "subtle")
+        confirm_btn = QPushButton(confirm_text)
+        confirm_btn.setProperty("accent", "warn")
+        cancel_btn.clicked.connect(self.reject)
+        confirm_btn.clicked.connect(self.accept)
+        button_row.addWidget(cancel_btn)
+        button_row.addWidget(confirm_btn)
+        layout.addLayout(button_row)
+
+        for button in (cancel_btn, confirm_btn):
+            style = button.style()
+            style.unpolish(button)
+            style.polish(button)
+            button.update()
+
+    @classmethod
+    def ask(
+        cls,
+        parent: QWidget,
+        *,
+        title: str,
+        message: str,
+        confirm_text: str = "仍继续执行",
+    ) -> bool:
+        dialog = cls(
+            title=title,
+            message=message,
+            confirm_text=confirm_text,
+            parent=parent,
+        )
+        return dialog.exec() == QDialog.DialogCode.Accepted
+
+
 class ChargeTab(QWidget):
     BATCH_PACING_ENABLED_KEY = "charge_tab/batch_pacing/enabled"
     BATCH_PACING_CHUNK_SIZE_KEY = "charge_tab/batch_pacing/chunk_size"
@@ -356,17 +561,14 @@ class ChargeTab(QWidget):
         action_layout = QVBoxLayout(action_group)
         action_layout.setContentsMargins(14, 20, 14, 14)
         action_layout.setSpacing(10)
-        action_hint = QLabel("点击按钮后将按当前输入路径执行批处理，失败文件会在日志中标注。")
+        action_hint = QLabel("点击“统计数据”后可在弹窗中选择“单文件模式”或“合并模式”执行。")
         action_hint.setObjectName("groupHint")
         action_hint.setWordWrap(True)
         action_row = QHBoxLayout()
         action_row.setSpacing(10)
         self.statistics_btn = QPushButton("统计数据")
-        self.merge_btn = QPushButton("合并后统计数据")
-        self.statistics_btn.setProperty("accent", "success")
-        self.merge_btn.setProperty("accent", "primary")
+        self.statistics_btn.setProperty("accent", "primary")
         action_row.addWidget(self.statistics_btn)
-        action_row.addWidget(self.merge_btn)
         action_row.addStretch()
         action_layout.addWidget(action_hint)
         action_layout.addLayout(action_row)
@@ -429,8 +631,7 @@ class ChargeTab(QWidget):
 
         self.browse_output_btn.clicked.connect(self._on_select_output)
         self.batch_pacing_btn.clicked.connect(self._open_batch_pacing_dialog)
-        self.statistics_btn.clicked.connect(self._run_statistics)
-        self.merge_btn.clicked.connect(self._run_merge)
+        self.statistics_btn.clicked.connect(self._open_statistics_mode_dialog)
 
     def _log(self, level: str, message: str) -> None:
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -600,7 +801,6 @@ class ChargeTab(QWidget):
             self.browse_output_btn,
             self.batch_pacing_btn,
             self.statistics_btn,
-            self.merge_btn,
             self.clear_log_btn,
         ):
             button.setDisabled(running)
@@ -621,15 +821,29 @@ class ChargeTab(QWidget):
         files, _ = collect_files(inputs, {".csv"})
         return bool(files)
 
-    def _confirm_continue(self, message: str) -> bool:
-        reply = QMessageBox.question(
+    def _count_excel_and_csv_files(self, inputs: list[Path]) -> tuple[int, int]:
+        files, _ = collect_files(inputs, {".xlsx", ".xls", ".csv"})
+        excel_count = sum(1 for file in files if file.suffix.lower() in {".xlsx", ".xls"})
+        csv_count = sum(1 for file in files if file.suffix.lower() == ".csv")
+        return excel_count, csv_count
+
+    def _confirm_continue(self, title: str, message: str) -> bool:
+        return SafeConfirmDialog.ask(
             self,
-            "操作确认",
-            message,
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
+            title=title,
+            message=message,
+            confirm_text="仍继续执行",
         )
-        return reply == QMessageBox.StandardButton.Yes
+
+    def _open_statistics_mode_dialog(self) -> None:
+        dialog = ProcessModeDialog(self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        if dialog.selected_mode == ProcessModeDialog.MODE_SINGLE:
+            self._run_statistics()
+            return
+        if dialog.selected_mode == ProcessModeDialog.MODE_MERGE:
+            self._run_merge()
 
     def _run_statistics(self) -> None:
         validated = self._validate_before_run()
@@ -638,6 +852,7 @@ class ChargeTab(QWidget):
         inputs, output_dir = validated
         if self._contains_csv_file(inputs):
             should_continue = self._confirm_continue(
+                "防误触提醒：单文件模式",
                 "检测到当前上传内容包含 .csv 文件。\n"
                 "“统计数据”通常仅处理 Excel 文件（.xlsx/.xls），可能存在误操作。\n"
                 "是否仍继续执行“统计数据”？"
@@ -667,14 +882,29 @@ class ChargeTab(QWidget):
         if validated is None:
             return
         inputs, output_dir = validated
-        if not self._contains_csv_file(inputs):
+        excel_count, csv_count = self._count_excel_and_csv_files(inputs)
+        if csv_count == 0:
             should_continue = self._confirm_continue(
+                "防误触提醒：合并模式",
                 "未检测到 .csv 文件。\n"
                 "“合并后统计数据”需要使用 Excel（.xlsx/.xls）与 .csv 配对文件，可能存在误操作。\n"
                 "是否仍继续执行“合并后统计数据”？"
             )
             if not should_continue:
                 self._log("WARN", "已取消执行：合并后统计数据（未检测到 .csv 文件）")
+                return
+        elif excel_count != csv_count:
+            should_continue = self._confirm_continue(
+                "防误触提醒：合并模式",
+                f"检测到 Excel 与 .csv 数量不一致（Excel={excel_count}，CSV={csv_count}）。\n"
+                "这通常意味着混入了“单文件模式”输入，或存在未成对文件，可能导致误操作。\n"
+                "是否仍继续执行“合并后统计数据”？"
+            )
+            if not should_continue:
+                self._log(
+                    "WARN",
+                    f"已取消执行：合并后统计数据（Excel/CSV 数量不一致，Excel={excel_count}，CSV={csv_count}）",
+                )
                 return
         self._set_running(True)
         self._log("INFO", "开始执行：合并后统计数据")

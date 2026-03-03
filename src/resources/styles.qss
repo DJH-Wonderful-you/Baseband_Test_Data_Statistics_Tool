@@ -734,3 +734,132 @@ QToolTip {
 #batchPacingButtons QPushButton {
     min-width: 88px;
 }
+
+/* 统计模式选择弹窗 */
+#modeSelectDialog {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 1,
+        stop: 0 #f6fbff,
+        stop: 1 #eef6ff
+    );
+}
+
+#modeSelectHeader {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 rgba(219, 238, 255, 0.98),
+        stop: 1 rgba(237, 248, 255, 0.98)
+    );
+    border: 1px solid #c9dff2;
+    border-radius: 12px;
+}
+
+#modeSelectTitle {
+    color: #1f4f72;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+#modeSelectSubtitle {
+    color: #5a7b97;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#modeSelectOptions {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #d4e4f4;
+    border-radius: 12px;
+}
+
+#modeOptionCard {
+    border-radius: 10px;
+    border: 1px solid #cfe1f3;
+    background: #f8fbff;
+}
+
+#modeOptionCard[kind="single"] {
+    border-color: #bfe4d2;
+    background: #f4fcf8;
+}
+
+#modeOptionCard[kind="merge"] {
+    border-color: #c9dff3;
+    background: #f4f9ff;
+}
+
+#modeOptionTitle {
+    color: #1e4f72;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#modeOptionDesc {
+    color: #5f809b;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+#modeOptionBtn {
+    min-width: 122px;
+}
+
+/* 防误触提醒弹窗 */
+#safeConfirmDialog {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 1,
+        stop: 0 #fffaf4,
+        stop: 1 #fff3e6
+    );
+}
+
+#safeConfirmHeader {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 rgba(255, 236, 214, 0.98),
+        stop: 1 rgba(255, 245, 231, 0.98)
+    );
+    border: 1px solid #f0ccaa;
+    border-radius: 12px;
+}
+
+#safeConfirmIcon {
+    min-width: 28px;
+    max-width: 28px;
+    min-height: 28px;
+    max-height: 28px;
+    color: #9d4d18;
+    background: #fff4e6;
+    border: 1px solid #edc29a;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#safeConfirmTitle {
+    color: #7b3f15;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#safeConfirmSubtitle {
+    color: #9c6b46;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+#safeConfirmBody {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #f0d5ba;
+    border-radius: 10px;
+}
+
+#safeConfirmMessage {
+    color: #7b4f2d;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+#safeConfirmDialog QPushButton {
+    min-width: 92px;
+}
