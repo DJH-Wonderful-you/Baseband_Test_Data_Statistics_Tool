@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import tempfile
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
@@ -366,4 +368,44 @@ def render_charge_workbook(
 
     _center_cells_with_data(sheet)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    workbook.save(output_path)
+    
+    # 使用输出目录下的临时目录，避免系统临时目录权限问题
+    temp_dir = output_path.parent / ".temp"
+    temp_dir.mkdir(exist_ok=True)
+    
+    # 设置环境变量，让openpyxl使用指定的临时目录
+    original_tmpdir = os.environ.get("TMPDIR")
+    original_temp = os.environ.get("TEMP")
+    original_tmp = os.environ.get("TMP")
+    
+    try:
+        os.environ["TMPDIR"] = str(temp_dir)
+        os.environ["TEMP"] = str(temp_dir)
+        os.environ["TMP"] = str(temp_dir)
+        workbook.save(output_path)
+    finally:
+        # 恢复原始环境变量
+        if original_tmpdir is not None:
+            os.environ["TMPDIR"] = original_tmpdir
+        elif "TMPDIR" in os.environ:
+            del os.environ["TMPDIR"]
+            
+        if original_temp is not None:
+            os.environ["TEMP"] = original_temp
+        elif "TEMP" in os.environ:
+            del os.environ["TEMP"]
+            
+        if original_tmp is not None:
+            os.environ["TMP"] = original_tmp
+        elif "TMP" in os.environ:
+            del os.environ["TMP"]
+        
+        # 清理临时目录
+        try:
+            for temp_file in temp_dir.glob("openpyxl.*"):
+                temp_file.unlink(missing_ok=True)
+            if not any(temp_dir.iterdir()):
+                temp_dir.rmdir()
+        except Exception:
+            pass  # 忽略清理错误
+
