@@ -61,7 +61,7 @@ def _curve_chart_title(stem: str) -> str:
         return stem
     if "充电温升" in stem:
         return stem.replace("温升", "曲线")
-    return "充电曲线测试"
+    return stem
 
 
 def _temp_chart_title(stem: str) -> str:
@@ -69,7 +69,7 @@ def _temp_chart_title(stem: str) -> str:
         return stem
     if "充电曲线" in stem:
         return stem.replace("曲线", "温升")
-    return "充电温升测试"
+    return stem
 
 
 def _write_summary_table(

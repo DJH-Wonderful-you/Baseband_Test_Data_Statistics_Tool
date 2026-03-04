@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QShowEvent
 from PySide6.QtWidgets import (
     QButtonGroup,
     QFrame,
@@ -20,15 +20,19 @@ from src.ui.placeholders import AboutTab, UpdateLogTab, build_placeholder_tab
 
 
 class MainWindow(QMainWindow):
+    DEFAULT_WINDOW_SIZE = (1280, 800)
+    BASE_MIN_WINDOW_SIZE = (1100, 700)
+
     def __init__(self) -> None:
         super().__init__()
+        self._startup_geometry_adjusted = False
         self.log_bus = LoggingBus()
         self._build_ui()
         self._apply_initial_size()
 
     def _build_ui(self) -> None:
         self.setWindowTitle("基带测试数据统计工具 V0.10")
-        self.setMinimumSize(1100, 700)
+        self.setMinimumSize(*self.BASE_MIN_WINDOW_SIZE)
 
         root_widget = QWidget()
         root_widget.setObjectName("appRoot")
@@ -97,11 +101,75 @@ class MainWindow(QMainWindow):
         return sidebar
 
     def _apply_initial_size(self) -> None:
+        width, height = self._get_initial_window_size()
+        min_width = min(self.BASE_MIN_WINDOW_SIZE[0], width)
+        min_height = min(self.BASE_MIN_WINDOW_SIZE[1], height)
+        self.setMinimumSize(min_width, min_height)
+        self.resize(width, height)
+        self._center_on_screen()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        if self._startup_geometry_adjusted:
+            return
+        self._startup_geometry_adjusted = True
+        self._fit_and_center_on_screen()
+
+    def _fit_and_center_on_screen(self) -> None:
+        screen = self._get_target_screen()
+        if screen is None:
+            return
+
+        geometry = screen.availableGeometry()
+        frame_extra_width = max(0, self.frameGeometry().width() - self.width())
+        frame_extra_height = max(0, self.frameGeometry().height() - self.height())
+        max_client_width = max(1, geometry.width() - frame_extra_width)
+        max_client_height = max(1, geometry.height() - frame_extra_height)
+
+        current_width = self.width()
+        current_height = self.height()
+        if current_width > max_client_width or current_height > max_client_height:
+            scale = min(max_client_width / current_width, max_client_height / current_height)
+            width = max(1, int(current_width * scale))
+            height = max(1, int(current_height * scale))
+            self.setMinimumSize(min(self.minimumWidth(), width), min(self.minimumHeight(), height))
+            self.resize(width, height)
+
+        self._center_on_screen()
+
+    def _center_on_screen(self) -> None:
+        screen = self._get_target_screen()
+        if screen is None:
+            return
+
+        geometry = screen.availableGeometry()
+        frame = self.frameGeometry()
+        x = geometry.x() + (geometry.width() - frame.width()) // 2
+        y = geometry.y() + (geometry.height() - frame.height()) // 2
+        max_x = geometry.x() + max(0, geometry.width() - frame.width())
+        max_y = geometry.y() + max(0, geometry.height() - frame.height())
+        self.move(min(max(geometry.x(), x), max_x), min(max(geometry.y(), y), max_y))
+
+    def _get_target_screen(self):
+        window_handle = self.windowHandle()
+        if window_handle is not None and window_handle.screen() is not None:
+            return window_handle.screen()
+        return QGuiApplication.primaryScreen()
+
+    def _get_initial_window_size(self) -> tuple[int, int]:
+        default_width, default_height = self.DEFAULT_WINDOW_SIZE
         screen = QGuiApplication.primaryScreen()
         if screen is None:
-            self.resize(1280, 800)
-            return
+            return default_width, default_height
+
         geometry = screen.availableGeometry()
-        width = int(geometry.width() * 0.78)
-        height = int(geometry.height() * 0.78)
-        self.resize(width, height)
+        screen_width = geometry.width()
+        screen_height = geometry.height()
+
+        if screen_width >= default_width and screen_height >= default_height:
+            return default_width, default_height
+
+        scale = min(screen_width / default_width, screen_height / default_height)
+        width = max(1, int(default_width * scale))
+        height = max(1, int(default_height * scale))
+        return width, height

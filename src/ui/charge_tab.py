@@ -829,6 +829,23 @@ class ChargeTab(QWidget):
             return None
         return inputs, Path(output_text)
 
+    @staticmethod
+    def _build_mode_output_dir(base_output_dir: Path, mode_label: str) -> Path:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        folder_name = f"{mode_label}_{timestamp}"
+        candidate = base_output_dir / folder_name
+        if not candidate.exists():
+            candidate.mkdir(parents=True, exist_ok=False)
+            return candidate
+
+        suffix = 1
+        while True:
+            candidate = base_output_dir / f"{folder_name}({suffix})"
+            if not candidate.exists():
+                candidate.mkdir(parents=True, exist_ok=False)
+                return candidate
+            suffix += 1
+
     def _contains_csv_file(self, inputs: list[Path]) -> bool:
         files, _ = collect_files(inputs, {".csv"})
         return bool(files)
@@ -929,16 +946,23 @@ class ChargeTab(QWidget):
             if not should_continue:
                 self._log("WARN", "已取消执行：统计数据（检测到 .csv 文件）")
                 return
+        try:
+            mode_output_dir = self._build_mode_output_dir(output_dir, "单文件模式")
+        except OSError as exc:
+            self._log("ERROR", f"创建输出目录失败：{exc}")
+            QMessageBox.critical(self, "错误", f"创建输出目录失败：{exc}")
+            return
         self._start_processing_progress(self._count_statistics_items(inputs))
         self._set_running(True)
         self._log("INFO", "开始执行：统计数据")
+        self._log("INFO", f"本次输出目录：{mode_output_dir}")
         chunk_size, wait_seconds = self._effective_pacing()
         if chunk_size is not None:
             self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
         try:
             result = process_charge_statistics(
                 inputs,
-                output_dir,
+                mode_output_dir,
                 logger=self._log_with_progress,
                 chunk_size=chunk_size,
                 wait_seconds=wait_seconds,
@@ -977,16 +1001,23 @@ class ChargeTab(QWidget):
                     f"已取消执行：合并后统计数据（Excel/CSV 数量不一致，Excel={excel_count}，CSV={csv_count}）",
                 )
                 return
+        try:
+            mode_output_dir = self._build_mode_output_dir(output_dir, "合并模式")
+        except OSError as exc:
+            self._log("ERROR", f"创建输出目录失败：{exc}")
+            QMessageBox.critical(self, "错误", f"创建输出目录失败：{exc}")
+            return
         self._start_processing_progress(self._count_merge_items(inputs))
         self._set_running(True)
         self._log("INFO", "开始执行：合并后统计数据")
+        self._log("INFO", f"本次输出目录：{mode_output_dir}")
         chunk_size, wait_seconds = self._effective_pacing()
         if chunk_size is not None:
             self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
         try:
             result = process_charge_merge(
                 inputs,
-                output_dir,
+                mode_output_dir,
                 logger=self._log_with_progress,
                 chunk_size=chunk_size,
                 wait_seconds=wait_seconds,
