@@ -437,6 +437,52 @@ QPushButton[accent="subtle"]:pressed {
     );
 }
 
+#processingProgressBar {
+    min-height: 22px;
+    border: 1px solid #c9dff1;
+    border-radius: 11px;
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #f8fcff,
+        stop: 1 #f1f8ff
+    );
+    color: #355a76;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    padding: 0 6px;
+}
+
+#processingProgressBar[state="running"] {
+    border-color: #93c0e2;
+    background: #eef7ff;
+    color: #1f4f72;
+}
+
+#processingProgressBar[state="done"] {
+    border-color: #9bcfb8;
+    background: #eefaf4;
+    color: #1f6f4a;
+}
+
+#processingProgressBar::chunk {
+    border-radius: 9px;
+    margin: 1px;
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 #6bb4ec,
+        stop: 1 #3f8fd5
+    );
+}
+
+#processingProgressBar[state="done"]::chunk {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 #63c593,
+        stop: 1 #3fae79
+    );
+}
+
 #placeholderCard {
     background: qlineargradient(
         x1: 0, y1: 0, x2: 1, y2: 1,

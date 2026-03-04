@@ -64,7 +64,7 @@ class AboutTab(QWidget):
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(28, 24, 28, 24)
         header_layout.setSpacing(8)
-        title = QLabel("基带测试数据统计工具 V0.9")
+        title = QLabel("基带测试数据统计工具 V0.10")
         title.setObjectName("aboutTitle")
         subtitle = QLabel("高效处理充电测试数据，统一输出统计结果与图表。")
         subtitle.setObjectName("aboutSubtitle")
@@ -98,6 +98,7 @@ class AboutTab(QWidget):
             "• 输出规则：默认保留原文件名，若重名会自动追加 (1)、(2) 等序号\n"
             "• 批处理策略：单个文件/文件组失败不会中断其它任务\n"
             "• 温升数据：当检测到笔壳与环境温度列时，会自动追加温升统计结果\n"
+            "• V0.10：数据处理入口改为单一“统计数据”按钮并新增模式选择弹窗；新增实时百分比进度条；防误触新增“合并模式下 Excel/CSV 数量不一致”提示，弹窗视觉同步优化。\n"
             "• V0.9：新增可配置“分批策略”（默认关闭，支持重启后保留）；优化分批策略弹窗交互；成功/失败日志去重并统一前置状态标记。\n"
             "• V0.7：完善重复秒级时间点处理，并将合并匹配规则调整为时间交集；支持 Excel/CSV 电流与电压来源互换。\n"
             "• V0.8：新增 O.L 自动替换规则（使用后一个值），并基于 CSV Unit（V/mA/A）自动识别并补齐电流/电压数据。",
@@ -112,9 +113,9 @@ class AboutTab(QWidget):
         info_title = QLabel("ℹ️ 版本信息")
         info_title.setObjectName("aboutSectionTitle")
         info_body = QLabel(
-            "版本：V0.9\n"
+            "版本：V0.10\n"
             "开发人员：邓景华\n"
-            "开发日期：2026-03-03"
+            "开发日期：2026-03-04"
         )
         info_body.setObjectName("aboutBody")
         info_layout.addWidget(info_title)
@@ -144,6 +145,30 @@ class UpdateLogTab(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._entries = [
+            {
+                "version": "V0.10",
+                "title": "处理入口重构、误触防护增强与进度可视化",
+                "time": "2026-03-04",
+                "detail": (
+                    "【版本目标】\n"
+                    "统一“数据处理”入口交互，提升模式选择清晰度与防误操作能力，并增强处理过程可视化反馈。\n\n"
+                    "【主要更新】\n"
+                    "1. 数据处理入口重构：\n"
+                    "   - 原“统计数据 + 合并后统计数据”双按钮改为单一“统计数据”入口。\n"
+                    "   - 点击后弹出模式选择弹窗，提供“单文件模式 / 合并模式”二选一，并附简短功能说明。\n"
+                    "2. 弹窗界面美化：\n"
+                    "   - 新增模式选择弹窗视觉样式，强化标题区、模式卡片区与操作区层次。\n"
+                    "   - 防误触弹窗改为统一风格的自定义提醒框，优化提示可读性与按钮层级。\n"
+                    "3. 合并模式防误触逻辑增强：\n"
+                    "   - 保留“未检测到 .csv 文件”提醒。\n"
+                    "   - 新增“Excel 与 CSV 数量不一致”提醒（例如混入单文件模式输入），需二次确认后继续执行。\n"
+                    "4. 实时进度可视化：\n"
+                    "   - 在“统计数据”按钮右侧新增处理进度条，实时展示百分比与已完成/总量。\n"
+                    "   - 处理过程中按单项成功/失败实时推进，完成后自动显示 100% 并切换完成态样式。\n\n"
+                    "【兼容说明】\n"
+                    "本版本不改变统计指标口径与输出结构，主要更新 UI 交互、防误触策略与处理进度展示。"
+                ),
+            },
             {
                 "version": "V0.9",
                 "title": "分批策略上线与日志去重优化",

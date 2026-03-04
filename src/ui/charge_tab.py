@@ -9,6 +9,7 @@ from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter, QPen
 from PySide6.QtWidgets import (
     QAbstractButton,
     QAbstractSpinBox,
+    QApplication,
     QDialog,
     QDialogButtonBox,
     QFileDialog,
@@ -18,6 +19,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMessageBox,
+    QProgressBar,
     QPushButton,
     QSpinBox,
     QSplitter,
@@ -28,7 +30,7 @@ from PySide6.QtWidgets import (
 
 from src.core.charge_merge_service import process_charge_merge
 from src.core.charge_statistics_service import process_charge_statistics
-from src.core.file_collect import collect_files
+from src.core.file_collect import collect_files, collect_merge_groups
 from src.core.logging_bus import LoggingBus
 from src.core.models import BatchResult
 from src.ui.components.file_upload import FileUploadWidget
@@ -503,6 +505,8 @@ class ChargeTab(QWidget):
         super().__init__()
         self.log_bus = log_bus
         self.batch_pacing_settings = self._load_batch_pacing_settings()
+        self._progress_total = 0
+        self._progress_done = 0
         self.setAcceptDrops(True)
         self._build_ui()
         self._refresh_batch_pacing_hint()
@@ -568,8 +572,16 @@ class ChargeTab(QWidget):
         action_row.setSpacing(10)
         self.statistics_btn = QPushButton("统计数据")
         self.statistics_btn.setProperty("accent", "primary")
+        self.processing_progress = QProgressBar()
+        self.processing_progress.setObjectName("processingProgressBar")
+        self.processing_progress.setRange(0, 100)
+        self.processing_progress.setValue(0)
+        self.processing_progress.setFormat("0%")
+        self.processing_progress.setTextVisible(True)
+        self.processing_progress.setMinimumWidth(240)
+        self.processing_progress.setProperty("state", "idle")
         action_row.addWidget(self.statistics_btn)
-        action_row.addStretch()
+        action_row.addWidget(self.processing_progress, stretch=1)
         action_layout.addWidget(action_hint)
         action_layout.addLayout(action_row)
         left_layout.addWidget(action_group)
@@ -827,6 +839,63 @@ class ChargeTab(QWidget):
         csv_count = sum(1 for file in files if file.suffix.lower() == ".csv")
         return excel_count, csv_count
 
+    def _count_statistics_items(self, inputs: list[Path]) -> int:
+        files, _ = collect_files(inputs, {".xlsx", ".xls"})
+        return len(files)
+
+    def _count_merge_items(self, inputs: list[Path]) -> int:
+        groups, pair_errors, _ = collect_merge_groups(inputs)
+        return len(groups) + len(pair_errors)
+
+    def _set_progress_state(self, state: str) -> None:
+        if self.processing_progress.property("state") == state:
+            return
+        self.processing_progress.setProperty("state", state)
+        style = self.processing_progress.style()
+        style.unpolish(self.processing_progress)
+        style.polish(self.processing_progress)
+        self.processing_progress.update()
+
+    def _refresh_processing_progress(self) -> None:
+        if self._progress_total <= 0:
+            percent = 0
+            format_text = "0%"
+            tooltip_text = "处理进度：0/0"
+        else:
+            done = min(self._progress_done, self._progress_total)
+            percent = int(done * 100 / self._progress_total)
+            format_text = f"{percent}%  ({done}/{self._progress_total})"
+            tooltip_text = f"处理进度：{done}/{self._progress_total}"
+        self.processing_progress.setValue(percent)
+        self.processing_progress.setFormat(format_text)
+        self.processing_progress.setToolTip(tooltip_text)
+        app = QApplication.instance()
+        if app is not None:
+            app.processEvents()
+
+    def _start_processing_progress(self, total_items: int) -> None:
+        self._progress_total = max(0, total_items)
+        self._progress_done = 0
+        self._set_progress_state("running" if self._progress_total > 0 else "idle")
+        self._refresh_processing_progress()
+
+    def _finish_processing_progress(self) -> None:
+        if self._progress_total > 0:
+            self._progress_done = self._progress_total
+            self._set_progress_state("done")
+        else:
+            self._set_progress_state("idle")
+        self._refresh_processing_progress()
+
+    def _log_with_progress(self, level: str, message: str) -> None:
+        if self._progress_total > 0:
+            is_success = level == "INFO" and "[成功]" in message
+            is_failed = level == "ERROR" and "[失败]" in message
+            if is_success or is_failed:
+                self._progress_done = min(self._progress_total, self._progress_done + 1)
+                self._refresh_processing_progress()
+        self._log(level, message)
+
     def _confirm_continue(self, title: str, message: str) -> bool:
         return SafeConfirmDialog.ask(
             self,
@@ -860,6 +929,7 @@ class ChargeTab(QWidget):
             if not should_continue:
                 self._log("WARN", "已取消执行：统计数据（检测到 .csv 文件）")
                 return
+        self._start_processing_progress(self._count_statistics_items(inputs))
         self._set_running(True)
         self._log("INFO", "开始执行：统计数据")
         chunk_size, wait_seconds = self._effective_pacing()
@@ -869,12 +939,13 @@ class ChargeTab(QWidget):
             result = process_charge_statistics(
                 inputs,
                 output_dir,
-                logger=self._log,
+                logger=self._log_with_progress,
                 chunk_size=chunk_size,
                 wait_seconds=wait_seconds,
             )
             self._log_batch_summary("统计数据", result)
         finally:
+            self._finish_processing_progress()
             self._set_running(False)
 
     def _run_merge(self) -> None:
@@ -906,6 +977,7 @@ class ChargeTab(QWidget):
                     f"已取消执行：合并后统计数据（Excel/CSV 数量不一致，Excel={excel_count}，CSV={csv_count}）",
                 )
                 return
+        self._start_processing_progress(self._count_merge_items(inputs))
         self._set_running(True)
         self._log("INFO", "开始执行：合并后统计数据")
         chunk_size, wait_seconds = self._effective_pacing()
@@ -915,12 +987,13 @@ class ChargeTab(QWidget):
             result = process_charge_merge(
                 inputs,
                 output_dir,
-                logger=self._log,
+                logger=self._log_with_progress,
                 chunk_size=chunk_size,
                 wait_seconds=wait_seconds,
             )
             self._log_batch_summary("合并后统计数据", result)
         finally:
+            self._finish_processing_progress()
             self._set_running(False)
 
     def _log_batch_summary(self, action: str, result: BatchResult) -> None:
