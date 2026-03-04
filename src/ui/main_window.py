@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
 
 from src.core.logging_bus import LoggingBus
 from src.ui.charge_tab import ChargeTab
+from src.ui.endurance_tab import EnduranceTab
 from src.ui.placeholders import AboutTab, UpdateLogTab, build_placeholder_tab
 
 
@@ -26,12 +27,11 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self._startup_geometry_adjusted = False
-        self.log_bus = LoggingBus()
         self._build_ui()
         self._apply_initial_size()
 
     def _build_ui(self) -> None:
-        self.setWindowTitle("基带测试数据统计工具 V0.11")
+        self.setWindowTitle("基带测试数据统计工具 V1.0")
         self.setMinimumSize(*self.BASE_MIN_WINDOW_SIZE)
 
         root_widget = QWidget()
@@ -42,10 +42,8 @@ class MainWindow(QMainWindow):
 
         self.page_stack = QStackedWidget()
         self.page_stack.setObjectName("pageStack")
-        self.page_stack.addWidget(ChargeTab(self.log_bus))
-        self.page_stack.addWidget(
-            build_placeholder_tab("开发中，后续版本将实现续航测试功能。"),
-        )
+        self.page_stack.addWidget(ChargeTab(LoggingBus()))
+        self.page_stack.addWidget(EnduranceTab(LoggingBus()))
         self.page_stack.addWidget(build_placeholder_tab("待开发功能页，当前暂无功能。"))
         self.page_stack.addWidget(AboutTab())
         self.page_stack.addWidget(UpdateLogTab())

@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
-from .models import MergeInputGroup
+from .models import EnduranceInputGroup, MergeInputGroup
 
 
 def _iter_files_from_path(path: Path, allowed_extensions: set[str]) -> list[Path]:
@@ -73,5 +73,56 @@ def collect_merge_groups(
             continue
         errors.append(
             f"[{stem}] 检测到多个同名文件（excel={len(excel_candidates)}, csv={len(csv_candidates)}），无法唯一配对"
+        )
+    return groups, errors, warnings
+
+
+def collect_endurance_indicator_groups(
+    input_paths: list[Path],
+) -> tuple[list[EnduranceInputGroup], list[str], list[str]]:
+    files, warnings = collect_files(input_paths, {".xlsx", ".xls", ".txt", ".log"})
+    excel_files = [file for file in files if file.suffix.lower() in {".xlsx", ".xls"}]
+    text_files = [file for file in files if file.suffix.lower() in {".txt", ".log"}]
+
+    if len(excel_files) == 1 and len(text_files) == 1:
+        excel_file = excel_files[0]
+        text_file = text_files[0]
+        group = EnduranceInputGroup(
+            stem=excel_file.stem,
+            excel_path=excel_file,
+            text_path=text_file,
+        )
+        return [group], [], warnings
+
+    excel_by_stem: defaultdict[str, list[Path]] = defaultdict(list)
+    text_by_stem: defaultdict[str, list[Path]] = defaultdict(list)
+    for file_path in excel_files:
+        excel_by_stem[file_path.stem].append(file_path)
+    for file_path in text_files:
+        text_by_stem[file_path.stem].append(file_path)
+
+    groups: list[EnduranceInputGroup] = []
+    errors: list[str] = []
+    all_stems = sorted(set(excel_by_stem.keys()) | set(text_by_stem.keys()))
+    for stem in all_stems:
+        excel_candidates = excel_by_stem.get(stem, [])
+        text_candidates = text_by_stem.get(stem, [])
+        if len(excel_candidates) == 1 and len(text_candidates) == 1:
+            groups.append(
+                EnduranceInputGroup(
+                    stem=stem,
+                    excel_path=excel_candidates[0],
+                    text_path=text_candidates[0],
+                )
+            )
+            continue
+        if not excel_candidates:
+            errors.append(f"[{stem}] 缺少匹配的 Excel 文件（.xlsx/.xls）")
+            continue
+        if not text_candidates:
+            errors.append(f"[{stem}] 缺少匹配的文本文件（.txt/.log）")
+            continue
+        errors.append(
+            f"[{stem}] 检测到多个同名文件（excel={len(excel_candidates)}, text={len(text_candidates)}），无法唯一配对"
         )
     return groups, errors, warnings

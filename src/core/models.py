@@ -32,6 +32,13 @@ class MergeInputGroup:
 
 
 @dataclass(slots=True)
+class EnduranceInputGroup:
+    stem: str
+    excel_path: Path
+    text_path: Path
+
+
+@dataclass(slots=True)
 class ChargeMetrics:
     precharge_current_ma: float | None
     const_current_ma: float | None

@@ -22,9 +22,17 @@ class FileUploadWidget(QWidget):
     """统一的文件上传组件，合并拖拽区域和文件列表"""
     paths_changed = Signal(list)
 
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+        *,
+        supported_hint: str = "支持 .xlsx / .xls / .csv 格式",
+        file_filter: str = "Data Files (*.xlsx *.xls *.csv);;All Files (*.*)",
+    ) -> None:
         super().__init__(parent)
         self._paths: list[Path] = []
+        self._supported_hint = supported_hint
+        self._file_filter = file_filter
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -64,7 +72,7 @@ class FileUploadWidget(QWidget):
         title_label.setObjectName("uploadTitle")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        hint_label = QLabel("支持 .xlsx / .xls / .csv 格式")
+        hint_label = QLabel(self._supported_hint)
         hint_label.setObjectName("uploadHint")
         hint_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -165,7 +173,7 @@ class FileUploadWidget(QWidget):
             self,
             "选择文件",
             str(Path.cwd()),
-            "Data Files (*.xlsx *.xls *.csv);;All Files (*.*)",
+            self._file_filter,
         )
         if selected:
             self.add_paths([Path(item) for item in selected])
