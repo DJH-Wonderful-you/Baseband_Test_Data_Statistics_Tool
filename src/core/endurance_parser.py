@@ -191,12 +191,11 @@ def parse_battery_log_file(path: Path) -> BatteryLogParseResult:
         return BatteryLogParseResult(mode="timed", timed_events=timed_events, warnings=warnings)
 
     if special_points_raw:
-        special_points, skipped = _collapse_repeated_levels_special(special_points_raw)
-        if skipped > 0:
-            warnings.append(f"文本中存在连续重复电量记录 {skipped} 条，已仅保留首次出现值")
-        step_warning = _build_step_warning([point.level for point in special_points])
+        # 无时间戳特殊格式按 1 秒采样，需保留全部电量与电压记录，不做“首次电量去重”。
+        transition_points, _ = _collapse_repeated_levels_special(special_points_raw)
+        step_warning = _build_step_warning([point.level for point in transition_points])
         if step_warning is not None:
             warnings.append(step_warning)
-        return BatteryLogParseResult(mode="special", special_points=special_points, warnings=warnings)
+        return BatteryLogParseResult(mode="special", special_points=special_points_raw, warnings=warnings)
 
     raise AppError("TEXT_PARSE_FAILED", "文本文件未识别到可用的电量日志格式", detail=path.name)

@@ -3,7 +3,6 @@ Lenovo Tab Pen Plus (28:CE:15:27:8B:87)
 V	14:31:27.975	Reading characteristic 00002a19-0000-1000-8000-00805f9b34fb
 D	14:31:27.975	gatt.readCharacteristic(00002a19-0000-1000-8000-00805f9b34fb)
 I	14:31:28.044	Read Response received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 64, "d"
-A	14:31:28.044	"100%" received
 I	14:35:27.342	Notification received from 00002a1a-0000-1000-8000-00805f9b34fb, value: (0x) 20, " "
 A	14:35:27.342	"
 Battery Power Information: Unknown
@@ -205,7 +204,6 @@ I	14:39:45.360	Connection parameters updated (interval: 15.0ms, latency: 8, time
 V	14:42:29.601	Reading characteristic 00002a19-0000-1000-8000-00805f9b34fb
 D	14:42:29.601	gatt.readCharacteristic(00002a19-0000-1000-8000-00805f9b34fb)
 I	14:42:29.682	Read Response received from 00002a19-0000-1000-8000-00805f9b34fb, value: (0x) 64, "d"
-A	14:42:29.682	"100%" received
 I	14:42:35.054	Notification received from 00002a1a-0000-1000-8000-00805f9b34fb, value: (0x) 20, " "
 A	14:42:35.055	"
 Battery Power Information: Unknown
