@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import time
+from datetime import date, time
 from pathlib import Path
 import re
 
@@ -24,18 +24,26 @@ _SPECIAL_PATTERN = re.compile(
     r"vol:(?P<mv>-?\d+)\(mv\)\s+level:(?P<level>-?\d+)\(%\)",
     re.IGNORECASE,
 )
+_DATE_PATTERN = re.compile(r"(?P<year>20\d{2})[/-](?P<month>\d{1,2})[/-](?P<day>\d{1,2})")
+_GENERIC_HMS_PATTERN = re.compile(
+    r"(?<!\d)(?P<hms>\d{1,2}:\d{2}:\d{2})(?:[.:]\d{1,3})?(?!\d)",
+    re.IGNORECASE,
+)
 
 
 @dataclass(slots=True)
 class TimedBatteryEvent:
     time_value: time
     level: int
+    date_value: date | None = None
 
 
 @dataclass(slots=True)
 class SpecialBatteryPoint:
     level: int
     voltage_v: float
+    time_value: time | None = None
+    date_value: date | None = None
 
 
 @dataclass(slots=True)
@@ -54,6 +62,20 @@ def _parse_hms(hms_text: str) -> time:
     return time(hour=hour, minute=minute, second=second)
 
 
+def _extract_date_from_line(line: str) -> date | None:
+    match = _DATE_PATTERN.search(line)
+    if match is None:
+        return None
+    try:
+        return date(
+            year=int(match.group("year")),
+            month=int(match.group("month")),
+            day=int(match.group("day")),
+        )
+    except ValueError:
+        return None
+
+
 def _timed_event_from_line(line: str) -> TimedBatteryEvent | None:
     for pattern in (_TIMED_LEVEL_PATTERN, _TAB_LEVEL_PATTERN, _L_FIELD_PATTERN):
         match = pattern.search(line)
@@ -62,7 +84,11 @@ def _timed_event_from_line(line: str) -> TimedBatteryEvent | None:
         hms_text = match.group("hms")
         level = int(match.group("level"))
         try:
-            return TimedBatteryEvent(time_value=_parse_hms(hms_text), level=level)
+            return TimedBatteryEvent(
+                time_value=_parse_hms(hms_text),
+                level=level,
+                date_value=_extract_date_from_line(line),
+            )
         except ValueError:
             continue
     return None
@@ -74,7 +100,19 @@ def _special_point_from_line(line: str) -> SpecialBatteryPoint | None:
         return None
     mv_value = int(match.group("mv"))
     level = int(match.group("level"))
-    return SpecialBatteryPoint(level=level, voltage_v=mv_value / 1000.0)
+    time_value: time | None = None
+    hms_match = _GENERIC_HMS_PATTERN.search(line)
+    if hms_match is not None:
+        try:
+            time_value = _parse_hms(hms_match.group("hms"))
+        except ValueError:
+            time_value = None
+    return SpecialBatteryPoint(
+        level=level,
+        voltage_v=mv_value / 1000.0,
+        time_value=time_value,
+        date_value=_extract_date_from_line(line),
+    )
 
 
 def _score_decoded_text(text: str) -> int:

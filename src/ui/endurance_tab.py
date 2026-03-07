@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
 from src.core.endurance_statistics_service import (
     process_endurance_duration_statistics,
     process_endurance_indicator_statistics,
+    process_endurance_single_log_statistics,
 )
 from src.core.file_collect import collect_endurance_indicator_groups, collect_files
 from src.core.logging_bus import LoggingBus
@@ -36,6 +37,7 @@ from src.ui.components.file_upload import FileUploadWidget
 
 class EnduranceModeDialog(QDialog):
     MODE_DURATION = "duration"
+    MODE_SINGLE_LOG = "single_log"
     MODE_INDICATOR = "indicator"
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -44,7 +46,7 @@ class EnduranceModeDialog(QDialog):
         self.setObjectName("modeSelectDialog")
         self.setWindowTitle("选择统计模式")
         self.setModal(True)
-        self.resize(520, 360)
+        self.resize(520, 460)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(18, 16, 18, 16)
@@ -74,10 +76,18 @@ class EnduranceModeDialog(QDialog):
         duration_card = self._build_mode_card(
             title="续航时长统计",
             description="仅处理 Excel（.xlsx/.xls），用于统计续航时长并输出曲线图。",
-            button_text="执行续航时长统计",
+            button_text="执行单Excel续航时长统计",
             button_accent="success",
             card_kind="single",
             mode=self.MODE_DURATION,
+        )
+        single_log_card = self._build_mode_card(
+            title="单log续航时长统计",
+            description="仅处理文本文件（.txt/.log），不支持与 Excel 组合，支持批量处理并输出 Excel 图表。",
+            button_text="执行单log续航时长统计",
+            button_accent="warn",
+            card_kind="single",
+            mode=self.MODE_SINGLE_LOG,
         )
         indicator_card = self._build_mode_card(
             title="电量指示统计",
@@ -88,6 +98,7 @@ class EnduranceModeDialog(QDialog):
             mode=self.MODE_INDICATOR,
         )
         options_layout.addWidget(duration_card)
+        options_layout.addWidget(single_log_card)
         options_layout.addWidget(indicator_card)
         layout.addWidget(options)
 
@@ -200,7 +211,7 @@ class EnduranceTab(QWidget):
         upload_layout.setContentsMargins(14, 20, 14, 14)
         upload_layout.setSpacing(10)
         upload_hint = QLabel(
-            "支持拖拽或选择文件/文件夹。续航时长统计处理 Excel（.xlsx/.xls）；电量指示统计按 Excel（.xlsx/.xls）+ 文本（.txt/.log）配对。"
+            "支持拖拽或选择文件/文件夹。单Excel续航时长统计处理 Excel（.xlsx/.xls）；单log续航时长统计仅处理文本（.txt/.log，支持批量，不支持与 Excel 混合）；电量指示统计按 Excel（.xlsx/.xls）+ 文本（.txt/.log）配对。"
         )
         upload_hint.setObjectName("groupHint")
         upload_hint.setWordWrap(True)
@@ -218,7 +229,9 @@ class EnduranceTab(QWidget):
         action_layout = QVBoxLayout(action_group)
         action_layout.setContentsMargins(14, 20, 14, 14)
         action_layout.setSpacing(10)
-        action_hint = QLabel("点击“统计数据”后可在弹窗中选择“执行续航时长统计”或“执行电量指示统计”。")
+        action_hint = QLabel(
+            "点击“统计数据”后可在弹窗中选择“执行单Excel续航时长统计”、“执行单log续航时长统计”或“执行电量指示统计”。"
+        )
         action_hint.setObjectName("groupHint")
         action_hint.setWordWrap(True)
         action_row = QHBoxLayout()
@@ -478,6 +491,10 @@ class EnduranceTab(QWidget):
         files, _ = collect_files(inputs, {".xlsx", ".xls"})
         return len(files)
 
+    def _count_single_log_items(self, inputs: list[Path]) -> int:
+        text_files, _ = collect_files(inputs, {".txt", ".log"})
+        return len(text_files)
+
     def _count_indicator_items(self, inputs: list[Path]) -> int:
         groups, pair_errors, _ = collect_endurance_indicator_groups(inputs)
         return len(groups) + len(pair_errors)
@@ -534,12 +551,24 @@ class EnduranceTab(QWidget):
     def _confirm_continue(self, title: str, message: str) -> bool:
         return SafeConfirmDialog.ask(self, title=title, message=message, confirm_text="仍继续执行")
 
+    def _show_safe_notice(self, title: str, message: str) -> None:
+        dialog = SafeConfirmDialog(
+            title=title,
+            message=message,
+            confirm_text="我知道了",
+            parent=self,
+        )
+        dialog.exec()
+
     def _open_statistics_mode_dialog(self) -> None:
         dialog = EnduranceModeDialog(self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         if dialog.selected_mode == EnduranceModeDialog.MODE_DURATION:
             self._run_duration_statistics()
+            return
+        if dialog.selected_mode == EnduranceModeDialog.MODE_SINGLE_LOG:
+            self._run_single_log_statistics()
             return
         if dialog.selected_mode == EnduranceModeDialog.MODE_INDICATOR:
             self._run_indicator_statistics()
@@ -551,17 +580,17 @@ class EnduranceTab(QWidget):
         inputs, output_dir = validated
         if self._contains_text_file(inputs):
             should_continue = self._confirm_continue(
-                "防误触提醒：续航时长统计",
+                "防误触提醒：单Excel续航时长统计",
                 "检测到当前上传内容包含文本文件（.txt/.log）。\n"
-                "“执行续航时长统计”通常仅处理 Excel 文件（.xlsx/.xls），可能存在误操作。\n"
-                "是否仍继续执行“执行续航时长统计”？",
+                "“执行单Excel续航时长统计”通常仅处理 Excel 文件（.xlsx/.xls），可能存在误操作。\n"
+                "是否仍继续执行“执行单Excel续航时长统计”？",
             )
             if not should_continue:
-                self._log("WARN", "已取消执行：执行续航时长统计（检测到文本文件）")
+                self._log("WARN", "已取消执行：执行单Excel续航时长统计（检测到文本文件）")
                 return
 
         try:
-            mode_output_dir = self._build_mode_output_dir(output_dir, "续航时长统计")
+            mode_output_dir = self._build_mode_output_dir(output_dir, "单Excel续航时长统计")
         except OSError as exc:
             self._log("ERROR", f"创建输出目录失败：{exc}")
             QMessageBox.critical(self, "错误", f"创建输出目录失败：{exc}")
@@ -569,7 +598,7 @@ class EnduranceTab(QWidget):
 
         self._start_processing_progress(self._count_duration_items(inputs))
         self._set_running(True)
-        self._log("INFO", "开始执行：执行续航时长统计")
+        self._log("INFO", "开始执行：执行单Excel续航时长统计")
         self._log("INFO", f"本次输出目录：{mode_output_dir}")
         chunk_size, wait_seconds = self._effective_pacing()
         if chunk_size is not None:
@@ -582,7 +611,57 @@ class EnduranceTab(QWidget):
                 chunk_size=chunk_size,
                 wait_seconds=wait_seconds,
             )
-            self._log_batch_summary("执行续航时长统计", result)
+            self._log_batch_summary("执行单Excel续航时长统计", result)
+        finally:
+            self._finish_processing_progress()
+            self._set_running(False)
+
+    def _run_single_log_statistics(self) -> None:
+        validated = self._validate_before_run()
+        if validated is None:
+            return
+        inputs, output_dir = validated
+        excel_count, text_count = self._count_excel_and_text_files(inputs)
+        if text_count == 0:
+            self._show_safe_notice(
+                "防误触提醒：单log续航时长统计",
+                "未检测到文本文件（.txt/.log）。\n"
+                "“执行单log续航时长统计”仅支持文本文件输入，请先上传至少一个文本文件后再执行。",
+            )
+            self._log("WARN", "已取消执行：执行单log续航时长统计（未检测到文本文件）")
+            return
+        if excel_count > 0:
+            self._show_safe_notice(
+                "防误触提醒：单log续航时长统计",
+                f"检测到上传内容中包含 Excel 文件（共 {excel_count} 个）。\n"
+                "“执行单log续航时长统计”仅支持文本文件输入，不支持与 Excel 组合，请移除 Excel 后再执行。",
+            )
+            self._log("WARN", f"已取消执行：执行单log续航时长统计（检测到 {excel_count} 个 Excel 文件）")
+            return
+
+        try:
+            mode_output_dir = self._build_mode_output_dir(output_dir, "单log续航时长统计")
+        except OSError as exc:
+            self._log("ERROR", f"创建输出目录失败：{exc}")
+            QMessageBox.critical(self, "错误", f"创建输出目录失败：{exc}")
+            return
+
+        self._start_processing_progress(self._count_single_log_items(inputs))
+        self._set_running(True)
+        self._log("INFO", "开始执行：执行单log续航时长统计")
+        self._log("INFO", f"本次输出目录：{mode_output_dir}")
+        chunk_size, wait_seconds = self._effective_pacing()
+        if chunk_size is not None:
+            self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
+        try:
+            result = process_endurance_single_log_statistics(
+                inputs=inputs,
+                output_dir=mode_output_dir,
+                logger=self._log_with_progress,
+                chunk_size=chunk_size,
+                wait_seconds=wait_seconds,
+            )
+            self._log_batch_summary("执行单log续航时长统计", result)
         finally:
             self._finish_processing_progress()
             self._set_running(False)
@@ -607,7 +686,7 @@ class EnduranceTab(QWidget):
             should_continue = self._confirm_continue(
                 "防误触提醒：电量指示统计",
                 f"检测到 Excel 与文本数量不一致（Excel={excel_count}，文本={text_count}）。\n"
-                "这通常意味着混入了“续航时长统计”输入，或存在未成对文件，可能导致误操作。\n"
+                "这通常意味着混入了“单Excel续航时长统计”输入，或存在未成对文件，可能导致误操作。\n"
                 "是否仍继续执行“执行电量指示统计”？",
             )
             if not should_continue:
@@ -669,3 +748,4 @@ class EnduranceTab(QWidget):
             self.file_upload.add_paths(dropped_paths)
             self._log("INFO", f"拖拽导入 {len(dropped_paths)} 个路径")
         event.acceptProposedAction()
+

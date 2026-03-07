@@ -251,6 +251,49 @@ def _add_voltage_level_chart(
     ws.add_chart(chart_left, anchor_cell)
 
 
+def _add_level_only_chart(
+    ws: Any,
+    *,
+    title: str,
+    first_data_row: int,
+    last_data_row: int,
+    time_col: int,
+    level_col: int,
+    anchor_cell: str,
+) -> None:
+    primary_x_axis_id = 900
+    primary_y_axis_id = 500
+
+    chart = LineChart()
+    chart.title = title
+    chart.title.tx.rich.p[0].r[0].rPr = CharacterProperties(sz=CHART_TITLE_SIZE, b=True)
+    chart.x_axis.axId = primary_x_axis_id
+    chart.y_axis.axId = primary_y_axis_id
+    chart.y_axis.title = "电量"
+    chart.y_axis.axPos = "l"
+    chart.y_axis.delete = False
+    chart.y_axis.tickLblPos = "nextTo"
+    chart.y_axis.number_format = "0"
+    chart.y_axis.crosses = "min"
+    chart.y_axis.crossAx = primary_x_axis_id
+    chart.x_axis.title = "时间"
+    chart.x_axis.axPos = "b"
+    chart.x_axis.delete = False
+    chart.x_axis.crossAx = primary_y_axis_id
+    chart.x_axis.number_format = "hh:mm:ss"
+    chart.x_axis.tickLblPos = "low"
+    chart.legend.position = "b"
+    chart.width = DEFAULT_CHART_WIDTH
+    chart.height = DEFAULT_CHART_HEIGHT
+    _apply_plot_area_layout(chart)
+
+    level_data = Reference(ws, min_col=level_col, min_row=1, max_col=level_col, max_row=last_data_row)
+    categories = Reference(ws, min_col=time_col, min_row=first_data_row, max_col=time_col, max_row=last_data_row)
+    chart.add_data(level_data, titles_from_data=True)
+    chart.set_categories(categories)
+    ws.add_chart(chart, anchor_cell)
+
+
 def _center_cells_with_data(ws: Any) -> None:
     center = Alignment(horizontal="center", vertical="center")
     for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
@@ -322,6 +365,7 @@ def render_endurance_indicator_workbook(
     dataset: ChargeDataset,
     log_rows: list[IndicatorLogRow],
     include_log_date: bool,
+    endurance_duration: timedelta,
     output_path: Path,
 ) -> None:
     workbook = Workbook()
@@ -369,12 +413,14 @@ def render_endurance_indicator_workbook(
         if log_row.mapped_voltage_v is not None:
             voltage_cell.number_format = "0.000"
 
+    summary_col = log_start_col + len(log_columns) + 2
+    table_end_row = _write_duration_table(sheet, summary_col, endurance_duration)
+
     if log_rows:
         time_col_idx = log_start_col + (1 if include_log_date else 0)
         level_col_idx = time_col_idx + 1
         voltage_col_idx = level_col_idx + 1
-        chart_anchor_col = voltage_col_idx + 2
-        chart_anchor = f"{get_column_letter(chart_anchor_col)}2"
+        chart_anchor = f"{get_column_letter(summary_col)}{table_end_row + 2}"
         _add_voltage_level_chart(
             sheet,
             title=dataset.stem,
@@ -383,6 +429,64 @@ def render_endurance_indicator_workbook(
             time_col=time_col_idx,
             voltage_col=voltage_col_idx,
             level_col=level_col_idx,
+            anchor_cell=chart_anchor,
+        )
+
+    _center_cells_with_data(sheet)
+    _save_workbook(workbook, output_path)
+
+
+def render_endurance_single_log_workbook(
+    *,
+    file_stem: str,
+    log_rows: list[IndicatorLogRow],
+    include_voltage: bool,
+    endurance_duration: timedelta,
+    output_path: Path,
+) -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "统计结果"
+
+    log_columns = ["log-时间 (s)", "电量 (%)"]
+    if include_voltage:
+        log_columns.append("映射电压 (V)")
+
+    header_fill = PatternFill(fill_type="solid", fgColor="DDEBF7")
+    header_font = Font(bold=True)
+    for offset, header in enumerate(log_columns):
+        col_idx = offset + 1
+        cell = sheet.cell(row=1, column=col_idx, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        width = 14 if "时间" in header or "日期" in header else 12
+        if "电压" in header:
+            width = 14
+        sheet.column_dimensions[get_column_letter(col_idx)].width = width
+
+    for row_offset, log_row in enumerate(log_rows):
+        row_idx = row_offset + 2
+        time_cell = sheet.cell(row=row_idx, column=1, value=log_row.log_datetime)
+        time_cell.number_format = "hh:mm:ss"
+
+        sheet.cell(row=row_idx, column=2, value=log_row.level)
+        if include_voltage:
+            voltage_cell = sheet.cell(row=row_idx, column=3, value=log_row.mapped_voltage_v)
+            if log_row.mapped_voltage_v is not None:
+                voltage_cell.number_format = "0.000"
+
+    summary_col = len(log_columns) + 2
+    table_end_row = _write_duration_table(sheet, summary_col, endurance_duration)
+
+    if log_rows:
+        chart_anchor = f"{get_column_letter(summary_col)}{table_end_row + 2}"
+        _add_level_only_chart(
+            sheet,
+            title=file_stem,
+            first_data_row=2,
+            last_data_row=len(log_rows) + 1,
+            time_col=1,
+            level_col=2,
             anchor_cell=chart_anchor,
         )
 
