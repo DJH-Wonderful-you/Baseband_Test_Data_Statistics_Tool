@@ -3,10 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QSettings, QThread, Qt
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (
-    QApplication,
     QDialog,
     QFileDialog,
     QFrame,
@@ -31,6 +30,7 @@ from src.core.endurance_statistics_service import (
 from src.core.file_collect import collect_endurance_indicator_groups, collect_files
 from src.core.logging_bus import LoggingBus
 from src.core.models import BatchResult
+from src.ui.background_task import BackgroundTaskWorker
 from src.ui.charge_tab import BatchPacingDialog, BatchPacingSettings, SafeConfirmDialog
 from src.ui.components.file_upload import FileUploadWidget
 
@@ -170,6 +170,9 @@ class EnduranceTab(QWidget):
         self.batch_pacing_settings = self._load_batch_pacing_settings()
         self._progress_total = 0
         self._progress_done = 0
+        self._worker_thread: QThread | None = None
+        self._worker: BackgroundTaskWorker | None = None
+        self._running_action: str = ""
         self.setAcceptDrops(True)
         self._build_ui()
         self._refresh_batch_pacing_hint()
@@ -521,9 +524,6 @@ class EnduranceTab(QWidget):
         self.processing_progress.setValue(percent)
         self.processing_progress.setFormat(format_text)
         self.processing_progress.setToolTip(tooltip_text)
-        app = QApplication.instance()
-        if app is not None:
-            app.processEvents()
 
     def _start_processing_progress(self, total_items: int) -> None:
         self._progress_total = max(0, total_items)
@@ -547,6 +547,73 @@ class EnduranceTab(QWidget):
                 self._progress_done = min(self._progress_total, self._progress_done + 1)
                 self._refresh_processing_progress()
         self._log(level, message)
+
+    def _dispatch_statistics_task(
+        self,
+        *,
+        action: str,
+        output_dir: Path,
+        total_items: int,
+        task,
+        task_args: tuple[object, ...],
+        chunk_size: int | None,
+        wait_seconds: int,
+    ) -> None:
+        if self._worker_thread is not None:
+            self._log("WARN", "当前已有统计任务在执行，请稍后再试。")
+            return
+
+        self._running_action = action
+        self._start_processing_progress(total_items)
+        self._set_running(True)
+        self._log("INFO", f"开始执行：{action}")
+        self._log("INFO", f"本次输出目录：{output_dir}")
+        if chunk_size is not None:
+            self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
+
+        task_kwargs = {
+            "chunk_size": chunk_size,
+            "wait_seconds": wait_seconds,
+        }
+        worker = BackgroundTaskWorker(task, args=task_args, kwargs=task_kwargs)
+        thread = QThread(self)
+        worker.moveToThread(thread)
+
+        thread.started.connect(worker.run)
+        worker.log.connect(self._log_with_progress)
+        worker.result_ready.connect(self._on_task_result)
+        worker.error.connect(self._on_task_error)
+        worker.finished.connect(self._on_task_finished)
+        worker.finished.connect(thread.quit)
+        thread.finished.connect(worker.deleteLater)
+        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(self._reset_worker_state)
+
+        self._worker = worker
+        self._worker_thread = thread
+        thread.start()
+
+    def _on_task_result(self, result: object) -> None:
+        if isinstance(result, BatchResult):
+            self._log_batch_summary(self._running_action, result)
+            return
+        self._log("ERROR", "[失败] 后台任务返回了未知结果类型，无法输出汇总。")
+
+    def _on_task_error(self, detail: str) -> None:
+        action = self._running_action or "统计数据"
+        self._log("ERROR", f"[失败] {action} 后台任务异常：{detail}")
+
+    def _on_task_finished(self) -> None:
+        self._finish_processing_progress()
+        self._set_running(False)
+
+    def _reset_worker_state(self) -> None:
+        self._worker = None
+        self._worker_thread = None
+        self._running_action = ""
+
+    def has_running_task(self) -> bool:
+        return self._worker_thread is not None and self._worker_thread.isRunning()
 
     def _confirm_continue(self, title: str, message: str) -> bool:
         return SafeConfirmDialog.ask(self, title=title, message=message, confirm_text="仍继续执行")
@@ -596,25 +663,16 @@ class EnduranceTab(QWidget):
             QMessageBox.critical(self, "错误", f"创建输出目录失败：{exc}")
             return
 
-        self._start_processing_progress(self._count_duration_items(inputs))
-        self._set_running(True)
-        self._log("INFO", "开始执行：执行单Excel续航时长统计")
-        self._log("INFO", f"本次输出目录：{mode_output_dir}")
         chunk_size, wait_seconds = self._effective_pacing()
-        if chunk_size is not None:
-            self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
-        try:
-            result = process_endurance_duration_statistics(
-                inputs=inputs,
-                output_dir=mode_output_dir,
-                logger=self._log_with_progress,
-                chunk_size=chunk_size,
-                wait_seconds=wait_seconds,
-            )
-            self._log_batch_summary("执行单Excel续航时长统计", result)
-        finally:
-            self._finish_processing_progress()
-            self._set_running(False)
+        self._dispatch_statistics_task(
+            action="执行单Excel续航时长统计",
+            output_dir=mode_output_dir,
+            total_items=self._count_duration_items(inputs),
+            task=process_endurance_duration_statistics,
+            task_args=(inputs, mode_output_dir),
+            chunk_size=chunk_size,
+            wait_seconds=wait_seconds,
+        )
 
     def _run_single_log_statistics(self) -> None:
         validated = self._validate_before_run()
@@ -646,25 +704,16 @@ class EnduranceTab(QWidget):
             QMessageBox.critical(self, "错误", f"创建输出目录失败：{exc}")
             return
 
-        self._start_processing_progress(self._count_single_log_items(inputs))
-        self._set_running(True)
-        self._log("INFO", "开始执行：执行单log续航时长统计")
-        self._log("INFO", f"本次输出目录：{mode_output_dir}")
         chunk_size, wait_seconds = self._effective_pacing()
-        if chunk_size is not None:
-            self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
-        try:
-            result = process_endurance_single_log_statistics(
-                inputs=inputs,
-                output_dir=mode_output_dir,
-                logger=self._log_with_progress,
-                chunk_size=chunk_size,
-                wait_seconds=wait_seconds,
-            )
-            self._log_batch_summary("执行单log续航时长统计", result)
-        finally:
-            self._finish_processing_progress()
-            self._set_running(False)
+        self._dispatch_statistics_task(
+            action="执行单log续航时长统计",
+            output_dir=mode_output_dir,
+            total_items=self._count_single_log_items(inputs),
+            task=process_endurance_single_log_statistics,
+            task_args=(inputs, mode_output_dir),
+            chunk_size=chunk_size,
+            wait_seconds=wait_seconds,
+        )
 
     def _run_indicator_statistics(self) -> None:
         validated = self._validate_before_run()
@@ -703,30 +752,25 @@ class EnduranceTab(QWidget):
             QMessageBox.critical(self, "错误", f"创建输出目录失败：{exc}")
             return
 
-        self._start_processing_progress(self._count_indicator_items(inputs))
-        self._set_running(True)
-        self._log("INFO", "开始执行：执行电量指示统计")
-        self._log("INFO", f"本次输出目录：{mode_output_dir}")
         chunk_size, wait_seconds = self._effective_pacing()
-        if chunk_size is not None:
-            self._log("INFO", f"分批策略：每批 {chunk_size} 个文件，批间等待 {wait_seconds} 秒")
-        try:
-            result = process_endurance_indicator_statistics(
-                inputs=inputs,
-                output_dir=mode_output_dir,
-                logger=self._log_with_progress,
-                chunk_size=chunk_size,
-                wait_seconds=wait_seconds,
-            )
-            self._log_batch_summary("执行电量指示统计", result)
-        finally:
-            self._finish_processing_progress()
-            self._set_running(False)
+        self._dispatch_statistics_task(
+            action="执行电量指示统计",
+            output_dir=mode_output_dir,
+            total_items=self._count_indicator_items(inputs),
+            task=process_endurance_indicator_statistics,
+            task_args=(inputs, mode_output_dir),
+            chunk_size=chunk_size,
+            wait_seconds=wait_seconds,
+        )
 
     def _log_batch_summary(self, action: str, result: BatchResult) -> None:
         self._log("INFO", f"{action}完成：总计 {result.total}，成功 {result.success}，失败 {result.failed}")
 
     def closeEvent(self, event) -> None:  # noqa: N802
+        if self.has_running_task():
+            QMessageBox.warning(self, "提示", "当前仍有统计任务正在执行，请等待完成后再关闭窗口。")
+            event.ignore()
+            return
         self.log_bus.unsubscribe(self._append_runtime_log)
         super().closeEvent(event)
 

@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMessageBox,
     QStackedWidget,
     QPushButton,
     QVBoxLayout,
@@ -171,3 +172,13 @@ class MainWindow(QMainWindow):
         width = max(1, int(default_width * scale))
         height = max(1, int(default_height * scale))
         return width, height
+
+    def closeEvent(self, event) -> None:  # noqa: N802
+        for index in range(self.page_stack.count()):
+            page = self.page_stack.widget(index)
+            has_running_task = getattr(page, "has_running_task", None)
+            if callable(has_running_task) and has_running_task():
+                QMessageBox.warning(self, "提示", "当前仍有统计任务正在执行，请等待完成后再退出程序。")
+                event.ignore()
+                return
+        super().closeEvent(event)
