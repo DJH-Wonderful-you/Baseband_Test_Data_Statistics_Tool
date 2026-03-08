@@ -1,5 +1,5 @@
 ﻿#define MyAppName "基带测试数据统计工具"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.2.2"
 #define MyAppPublisher "RJHZ"
 #define MyAppExeName "Baseband_Test_Data_Statistics_Tool.exe"
 

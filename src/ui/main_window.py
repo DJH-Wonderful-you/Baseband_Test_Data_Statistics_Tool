@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QGuiApplication, QShowEvent
+from PySide6.QtGui import QGuiApplication, QIcon, QShowEvent
 from PySide6.QtWidgets import (
     QButtonGroup,
     QFrame,
@@ -32,8 +34,13 @@ class MainWindow(QMainWindow):
         self._apply_initial_size()
 
     def _build_ui(self) -> None:
-        self.setWindowTitle("基带测试数据统计工具 V1.1")
+        self.setWindowTitle("基带测试数据统计工具 V1.2")
         self.setMinimumSize(*self.BASE_MIN_WINDOW_SIZE)
+        
+        # Set window icon
+        icon_path = Path(__file__).parent.parent / "resources" / "app_icon.ico"
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
 
         root_widget = QWidget()
         root_widget.setObjectName("appRoot")

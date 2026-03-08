@@ -214,7 +214,7 @@ class EnduranceTab(QWidget):
         upload_layout.setContentsMargins(14, 20, 14, 14)
         upload_layout.setSpacing(10)
         upload_hint = QLabel(
-            "支持拖拽或选择文件/文件夹。单Excel续航时长统计处理 Excel（.xlsx/.xls）；单log续航时长统计仅处理文本（.txt/.log，支持批量，不支持与 Excel 混合）；电量指示统计按 Excel（.xlsx/.xls）+ 文本（.txt/.log）配对。"
+            "支持拖拽或选择文件/文件夹。单Excel续航时长统计处理 Excel（.xlsx/.xls）；单log续航时长统计处理文本（.txt/.log）；电量指示统计按 Excel（.xlsx/.xls）+ 文本（.txt/.log）配对。"
         )
         upload_hint.setObjectName("groupHint")
         upload_hint.setWordWrap(True)
@@ -233,7 +233,7 @@ class EnduranceTab(QWidget):
         action_layout.setContentsMargins(14, 20, 14, 14)
         action_layout.setSpacing(10)
         action_hint = QLabel(
-            "点击“统计数据”后可在弹窗中选择“执行单Excel续航时长统计”、“执行单log续航时长统计”或“执行电量指示统计”。"
+            "点击“统计数据”后可在弹窗中选择“执行续航时长统计”或“执行电量指示统计”。"
         )
         action_hint.setObjectName("groupHint")
         action_hint.setWordWrap(True)
