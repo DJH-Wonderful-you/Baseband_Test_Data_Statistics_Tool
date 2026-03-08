@@ -8,10 +8,10 @@ AppId={{D6C90720-DB3E-46EA-A106-4B11B4A9D14D}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={localappdata}\Programs\Baseband Test Data Statistics Tool
+DefaultDirName={autopf}\Baseband Test Data Statistics Tool
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=dist
 OutputBaseFilename=Baseband_Test_Data_Statistics_Tool_Setup_{#MyAppVersion}_x64
 Compression=lzma2
@@ -19,6 +19,7 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+SetupIconFile=src\resources\app_icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
