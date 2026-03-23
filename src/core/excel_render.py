@@ -264,21 +264,23 @@ def _center_cells_with_data(ws: Any) -> None:
 
 def render_charge_workbook(
     dataset: ChargeDataset,
-    charge_metrics: ChargeMetrics,
+    charge_metrics: ChargeMetrics | None,
     temperature_metrics: TemperatureMetrics | None,
     output_path: Path,
 ) -> None:
     workbook = Workbook()
     sheet = workbook.active
     sheet.title = "统计结果"
+    has_curve_data = dataset.has_charge_curve_data() and charge_metrics is not None
 
     columns: list[_ColumnDef] = []
     if any(value is not None for value in dataset.index_values):
         columns.append(_ColumnDef("索引", dataset.index_values))
     columns.append(_ColumnDef("日期", dataset.date_strings))
     columns.append(_ColumnDef("时间 (s)", dataset.datetimes, number_format="hh:mm:ss"))
-    columns.append(_ColumnDef("电流 (mA)", dataset.currents_ma, number_format="0.000"))
-    if any(value is not None for value in dataset.voltages_v):
+    if dataset.has_current_data():
+        columns.append(_ColumnDef("电流 (mA)", dataset.currents_ma, number_format="0.000"))
+    if dataset.has_voltage_data():
         columns.append(_ColumnDef("电压（V）", dataset.voltages_v, number_format="0.000"))
     if dataset.has_temperature_data:
         columns.append(_ColumnDef("笔壳温度 (°C)", dataset.pen_temps_c, number_format="0.000"))
@@ -305,19 +307,22 @@ def render_charge_workbook(
             if column.number_format and value is not None:
                 cell.number_format = column.number_format
 
-    curve_table_col = len(columns) + 2
-    curve_rows = [
-        ("预充电流", _format_float(charge_metrics.precharge_current_ma, "mA")),
-        ("恒流电流", _format_float(charge_metrics.const_current_ma, "mA")),
-        ("截充电流", _format_float(charge_metrics.cutoff_current_ma, "mA")),
-        ("满充电压", _format_float(charge_metrics.full_voltage_v, "V")),
-        ("充电时长", _format_duration(charge_metrics.duration)),
-    ]
-    curve_table_end_row = _write_summary_table(sheet, curve_table_col, "充电曲线测试", curve_rows)
+    summary_start_col = len(columns) + 2
+    curve_table_col = summary_start_col
+    curve_table_end_row = 0
+    if has_curve_data:
+        curve_rows = [
+            ("预充电流", _format_float(charge_metrics.precharge_current_ma, "mA")),
+            ("恒流电流", _format_float(charge_metrics.const_current_ma, "mA")),
+            ("截充电流", _format_float(charge_metrics.cutoff_current_ma, "mA")),
+            ("满充电压", _format_float(charge_metrics.full_voltage_v, "V")),
+            ("充电时长", _format_duration(charge_metrics.duration)),
+        ]
+        curve_table_end_row = _write_summary_table(sheet, curve_table_col, "充电曲线测试", curve_rows)
 
     temp_table_end_row = 0
     if dataset.has_temperature_data and temperature_metrics is not None:
-        temp_table_col = curve_table_col + 3
+        temp_table_col = curve_table_col + 3 if has_curve_data else summary_start_col
         temp_rows = [
             ("笔壳最高温度", _format_float(temperature_metrics.max_pen_temp_c, "°C")),
             ("对应的环境温度", _format_float(temperature_metrics.env_temp_at_max_pen_c, "°C")),
@@ -334,26 +339,28 @@ def render_charge_workbook(
     data_end_row = dataset.row_count() + 1
     header_to_col = {column.header: idx for idx, column in enumerate(columns, start=1)}
     time_col = header_to_col.get("时间 (s)")
-    current_col = header_to_col["电流 (mA)"]
-    voltage_col = header_to_col.get("电压（V）")
     chart_start_row = max(curve_table_end_row, temp_table_end_row or 0) + 2
-    chart_anchor = f"{get_column_letter(curve_table_col)}{chart_start_row}"
-    _add_curve_chart(
-        sheet,
-        chart_anchor,
-        _curve_chart_title(dataset.stem),
-        data_start_row,
-        data_end_row,
-        time_col,
-        current_col,
-        voltage_col,
-    )
+    chart_anchor_col = summary_start_col
+    if has_curve_data:
+        current_col = header_to_col["电流 (mA)"]
+        voltage_col = header_to_col.get("电压（V）")
+        chart_anchor = f"{get_column_letter(chart_anchor_col)}{chart_start_row}"
+        _add_curve_chart(
+            sheet,
+            chart_anchor,
+            _curve_chart_title(dataset.stem),
+            data_start_row,
+            data_end_row,
+            time_col,
+            current_col,
+            voltage_col,
+        )
 
     if dataset.has_temperature_data and temperature_metrics is not None:
         pen_col = header_to_col["笔壳温度 (°C)"]
         env_col = header_to_col["环境温度 (°C)"]
-        temp_anchor_row = chart_start_row + TEMP_CHART_ROW_GAP
-        temp_anchor = f"{get_column_letter(curve_table_col)}{temp_anchor_row}"
+        temp_anchor_row = chart_start_row + TEMP_CHART_ROW_GAP if has_curve_data else chart_start_row
+        temp_anchor = f"{get_column_letter(chart_anchor_col)}{temp_anchor_row}"
         _add_temp_chart(
             sheet,
             temp_anchor,

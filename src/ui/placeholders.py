@@ -64,7 +64,7 @@ class AboutTab(QWidget):
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(28, 24, 28, 24)
         header_layout.setSpacing(8)
-        title = QLabel("基带测试数据统计工具 V1.2")
+        title = QLabel("基带测试数据统计工具 V1.3")
         title.setObjectName("aboutTitle")
         subtitle = QLabel("统一处理充电与续航测试数据，支持多模式统计、批量处理与图表导出。")
         subtitle.setObjectName("aboutSubtitle")
@@ -113,7 +113,8 @@ class AboutTab(QWidget):
             "• 输出命名：结果默认沿用输入文件的主文件名；若目标目录中重名，会自动追加 (1)、(2) 等序号\n"
             "• 配对模式会做有效性校验：缺失配对、同名多文件、时间点无交集等情况会直接报错\n"
             "• 批处理策略：单个文件/文件组失败不会中断其他任务，最终会输出总计/成功/失败汇总\n"
-            "• 温升统计：当检测到“笔壳温度 + 环境温度”列时，会自动追加温升相关结果",
+            "• 温升统计：当检测到“笔壳温度 + 环境温度”列时，会自动追加温升相关结果\n"
+            "• 充电测试-单文件模式：若缺少电流或电压，但存在完整的“笔壳温度 + 环境温度”数据，将给出警告并继续输出温升统计结果",
         )
         content_layout.addWidget(notes)
 
@@ -125,9 +126,9 @@ class AboutTab(QWidget):
         info_title = QLabel("ℹ️ 版本信息")
         info_title.setObjectName("aboutSectionTitle")
         info_body = QLabel(
-            "版本：V1.2\n"
+            "版本：V1.3\n"
             "开发人员：邓景华\n"
-            "开发日期：2026-03-08"
+            "开发日期：2026-03-23"
         )
         info_body.setObjectName("aboutBody")
         info_layout.addWidget(info_title)
@@ -157,6 +158,26 @@ class UpdateLogTab(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._entries = [
+            {
+                "version": "V1.3",
+                "title": "充电单文件模式兼容仅温升数据输入",
+                "time": "2026-03-23",
+                "detail": (
+                    "【版本目标】\n"
+                    "提升“充电测试-单文件模式”对不完整曲线数据的兼容性，避免在仅需温升统计的场景下因缺少电流或电压而直接中断。\n\n"
+                    "【主要更新】\n"
+                    "1. 单文件模式输入兼容性增强：\n"
+                    "   - 当 Excel 中缺少“电流”或“电压”列/有效数据时，不再立即报错终止。\n"
+                    "   - 若同时存在完整的“笔壳温度 (°C)”与“环境温度 (°C)”数据，则判定为仅执行“充电温升测试”的场景。\n"
+                    "2. 告警与执行策略调整：\n"
+                    "   - 对上述场景新增 warning 提示，明确说明已跳过“充电曲线测试”统计，仅继续执行“充电温升测试”统计。\n"
+                    "3. 结果输出联动优化：\n"
+                    "   - 仅温升场景下，结果页不再生成“充电曲线测试”表格与曲线图。\n"
+                    "   - 保留基础数据、温升统计表及温升图，输出结构与实际可统计内容保持一致。\n\n"
+                    "【兼容说明】\n"
+                    "本版本仅放宽“充电测试-单文件模式”在特定输入场景下的终止条件，不改变既有曲线统计指标口径；当温升数据也不完整时，仍按原有规则报错。"
+                ),
+            },
             {
                 "version": "V1.2",
                 "title": "单log续航时长统计增强与交互一致性优化",

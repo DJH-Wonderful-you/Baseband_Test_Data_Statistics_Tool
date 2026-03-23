@@ -73,3 +73,19 @@ class ChargeDataset:
 
     def row_count(self) -> int:
         return len(self.datetimes)
+
+    def has_current_data(self) -> bool:
+        return any(value is not None for value in self.currents_ma)
+
+    def has_voltage_data(self) -> bool:
+        return any(value is not None for value in self.voltages_v)
+
+    def has_charge_curve_data(self) -> bool:
+        return self.has_current_data() and self.has_voltage_data()
+
+    def has_temperature_measurements(self) -> bool:
+        return (
+            self.has_temperature_data
+            and any(value is not None for value in self.pen_temps_c)
+            and any(value is not None for value in self.env_temps_c)
+        )

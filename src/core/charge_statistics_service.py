@@ -140,6 +140,20 @@ def compute_temperature_metrics(dataset: ChargeDataset) -> TemperatureMetrics | 
     )
 
 
+def _raise_missing_charge_curve_data(dataset: ChargeDataset) -> None:
+    if not dataset.has_current_data():
+        raise AppError(
+            "MISSING_CURRENT",
+            "未检测到“电流”相关列或有效数据",
+            detail=dataset.source_path.name,
+        )
+    raise AppError(
+        "MISSING_VOLTAGE",
+        "未检测到“电压”相关列或有效数据",
+        detail=dataset.source_path.name,
+    )
+
+
 def process_charge_statistics(
     inputs: list[Path],
     output_dir: Path,
@@ -164,9 +178,21 @@ def process_charge_statistics(
     for index, excel_file in enumerate(excel_files, start=1):
         _emit(logger, "INFO", f"开始处理（统计数据）：{excel_file}")
         try:
-            dataset = parse_charge_workbook(excel_file, require_voltage=True)
-            apply_tail_fill_check(dataset)
-            metrics = compute_charge_metrics(dataset)
+            dataset = parse_charge_workbook(
+                excel_file,
+                require_voltage=False,
+                require_current=False,
+            )
+            metrics: ChargeMetrics | None = None
+            if dataset.has_charge_curve_data():
+                apply_tail_fill_check(dataset)
+                metrics = compute_charge_metrics(dataset)
+            elif dataset.has_temperature_measurements():
+                dataset.warnings.append(
+                    "未检测到完整的“充电曲线测试”数据，已跳过充电曲线测试统计，仅继续统计“充电温升测试”数据"
+                )
+            else:
+                _raise_missing_charge_curve_data(dataset)
             temp_metrics = compute_temperature_metrics(dataset)
             output_path = resolve_output_path(output_dir, dataset.stem)
             render_charge_workbook(dataset, metrics, temp_metrics, output_path)
