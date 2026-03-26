@@ -89,3 +89,30 @@ class ChargeDataset:
             and any(value is not None for value in self.pen_temps_c)
             and any(value is not None for value in self.env_temps_c)
         )
+
+
+@dataclass(slots=True)
+class ChargeProtectionDataset:
+    source_path: Path
+    stem: str
+    index_values: list[int | None]
+    datetimes: list[datetime]
+    date_strings: list[str]
+    time_strings: list[str]
+    currents_ma: list[float | None]
+    voltages_v: list[float | None]
+    env_temps_c: list[float | None]
+    cell_temps_c: list[float | None]
+    warnings: list[str] = field(default_factory=list)
+
+    def row_count(self) -> int:
+        return len(self.datetimes)
+
+
+@dataclass(slots=True)
+class ChargeProtectionMetrics:
+    mode: str
+    high_protect_temp_c: float | None
+    high_resume_temp_c: float | None
+    low_protect_temp_c: float | None
+    low_resume_temp_c: float | None

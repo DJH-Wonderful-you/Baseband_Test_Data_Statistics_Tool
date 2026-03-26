@@ -19,8 +19,10 @@ from PySide6.QtWidgets import (
 
 from src.core.logging_bus import LoggingBus
 from src.ui.charge_tab import ChargeTab
+from src.ui.charge_protection_tab import ChargeProtectionTab
 from src.ui.endurance_tab import EnduranceTab
 from src.ui.placeholders import AboutTab, UpdateLogTab, build_placeholder_tab
+from src.ui.voltage_sampling_tab import VoltageSamplingTab
 
 
 class MainWindow(QMainWindow):
@@ -34,7 +36,7 @@ class MainWindow(QMainWindow):
         self._apply_initial_size()
 
     def _build_ui(self) -> None:
-        self.setWindowTitle("基带测试数据统计工具 V1.3")
+        self.setWindowTitle("基带测试数据统计工具 V1.5")
         self.setMinimumSize(*self.BASE_MIN_WINDOW_SIZE)
         
         # Set window icon
@@ -52,6 +54,8 @@ class MainWindow(QMainWindow):
         self.page_stack.setObjectName("pageStack")
         self.page_stack.addWidget(ChargeTab(LoggingBus()))
         self.page_stack.addWidget(EnduranceTab(LoggingBus()))
+        self.page_stack.addWidget(ChargeProtectionTab(LoggingBus()))
+        self.page_stack.addWidget(VoltageSamplingTab(LoggingBus()))
         self.page_stack.addWidget(build_placeholder_tab("待开发功能页，当前暂无功能。"))
         self.page_stack.addWidget(AboutTab())
         self.page_stack.addWidget(UpdateLogTab())
@@ -89,9 +93,11 @@ class MainWindow(QMainWindow):
         nav_items = [
             ("充电测试", 0),
             ("续航测试", 1),
-            ("待开发功能", 2),
-            ("关于", 3),
-            ("更新日志", 4),
+            ("充电保护测试", 2),
+            ("分压采集测试", 3),
+            ("待开发功能", 4),
+            ("关于", 5),
+            ("更新日志", 6),
         ]
         for text, index in nav_items:
             button = QPushButton(text)

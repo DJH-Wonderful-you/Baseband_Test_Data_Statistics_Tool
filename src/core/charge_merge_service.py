@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 from typing import Any, Callable
 
-from .charge_parser import parse_charge_workbook, parse_time_value_csv
+from .charge_parser import normalize_series_polarity, parse_charge_workbook, parse_time_value_csv
 from .charge_statistics_service import (
     apply_tail_fill_check,
     compute_charge_metrics,
@@ -202,7 +202,9 @@ def process_charge_merge(
                         "CSV Unit=V 时，Excel 需提供电流列，CSV 提供电压列",
                         detail=group.stem,
                     )
-                dataset.voltages_v = matched_csv_values
+                dataset.voltages_v, voltage_flipped = normalize_series_polarity(matched_csv_values)
+                if voltage_flipped:
+                    dataset.warnings.append("检测到电压极性与预期相反，已将整列电压取相反数后再进行后续统计")
             else:
                 if not excel_has_voltage:
                     raise AppError(
@@ -213,11 +215,8 @@ def process_charge_merge(
                 dataset.currents_ma = [
                     (value * current_factor if value is not None else None) for value in matched_csv_values
                 ]
-                valid_current_values = [value for value in dataset.currents_ma if value is not None]
-                if valid_current_values and max(valid_current_values, key=lambda value: abs(value)) < 0:
-                    dataset.currents_ma = [
-                        (-value if value is not None else None) for value in dataset.currents_ma
-                    ]
+                dataset.currents_ma, current_flipped = normalize_series_polarity(dataset.currents_ma)
+                if current_flipped:
                     dataset.warnings.append("检测到电流方向与预期相反，已将整列电流取相反数后再进行后续统计")
             apply_tail_fill_check(dataset)
             metrics = compute_charge_metrics(dataset)

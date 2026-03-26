@@ -115,6 +115,7 @@ class FileUploadWidget(QWidget):
         btn_row.addWidget(self.btn_remove_selected)
         btn_row.addWidget(self.btn_clear)
         btn_row.addStretch()
+        self.button_row = btn_row
         root.addLayout(btn_row)
 
         # 连接信号
@@ -225,6 +226,9 @@ class FileUploadWidget(QWidget):
 
     def get_paths(self) -> list[Path]:
         return self._paths.copy()
+
+    def insert_button_row_widget(self, widget: QWidget) -> None:
+        self.button_row.insertWidget(max(0, self.button_row.count() - 1), widget)
 
     def set_controls_enabled(self, enabled: bool) -> None:
         for widget in (

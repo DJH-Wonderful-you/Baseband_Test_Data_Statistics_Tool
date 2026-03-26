@@ -105,6 +105,15 @@ def _to_float(value: Any) -> float | None:
     return float(match.group(0))
 
 
+def normalize_series_polarity(values: list[float | None]) -> tuple[list[float | None], bool]:
+    valid_values = [value for value in values if value is not None]
+    if not valid_values:
+        return values, False
+    if max(valid_values, key=abs) >= 0:
+        return values, False
+    return [(-value if value is not None else None) for value in values], True
+
+
 def _parse_date_only(value: Any, epoch: datetime) -> date | None:
     if _is_empty(value):
         return None
@@ -202,6 +211,10 @@ def _find_column(headers: dict[int, str], predicate: Any) -> int | None:
         if predicate(text):
             return col_idx
     return None
+
+
+def _find_columns(headers: dict[int, str], predicate: Any) -> list[int]:
+    return [col_idx for col_idx, text in headers.items() if predicate(text)]
 
 
 def _build_extra_headers(headers: dict[int, str], excluded_columns: set[int]) -> list[tuple[int, str]]:
@@ -307,8 +320,8 @@ def parse_charge_workbook(
     )
     index_col = _find_column(headers, lambda h: "索引" in h)
     date_col = _find_column(headers, lambda h: "日期" in h and "log" not in _normalize_header(h))
-    pen_col = _find_column(headers, lambda h: "笔壳" in h and "温度" in h)
-    env_col = _find_column(headers, lambda h: "环境" in h and "温度" in h)
+    pen_col = _find_column(headers, lambda h: "笔壳" in h and "温度" in h and "时间" not in h)
+    env_col = _find_column(headers, lambda h: "环境" in h and "温度" in h and "时间" not in h)
     has_temperature_data = pen_col is not None and env_col is not None
 
     if time_col is None:
@@ -413,12 +426,15 @@ def parse_charge_workbook(
         currents_ma = [
             (value * current_factor if value is not None else None) for value in currents_raw
         ]
-        valid_current_values = [value for value in currents_ma if value is not None]
-        if valid_current_values and max(valid_current_values, key=lambda value: abs(value)) < 0:
-            currents_ma = [(-value if value is not None else None) for value in currents_ma]
+        currents_ma, current_flipped = normalize_series_polarity(currents_ma)
+        if current_flipped:
             warnings.append("检测到电流方向与预期相反，已将整列电流取相反数后再进行后续统计")
     else:
         currents_ma = [None for _ in currents_raw]
+
+    voltages_v, voltage_flipped = normalize_series_polarity(voltages_v)
+    if voltage_flipped:
+        warnings.append("检测到电压极性与预期相反，已将整列电压取相反数后再进行后续统计")
 
     return ChargeDataset(
         source_path=path,
@@ -433,6 +449,194 @@ def parse_charge_workbook(
         env_temps_c=env_temps_c,
         extras=extras,
         extra_headers_order=[header for _, header in extra_headers],
+        has_temperature_data=has_temperature_data,
+        warnings=warnings,
+    )
+
+
+def parse_voltage_sampling_workbook(
+    path: Path,
+    sampling_resistance_ohm: float,
+    normalize_duplicate_seconds: bool = False,
+) -> ChargeDataset:
+    if sampling_resistance_ohm <= 0:
+        raise AppError(
+            "INVALID_SAMPLING_RESISTANCE",
+            "采样电阻阻值必须大于 0",
+            detail=f"{path.name} resistance={sampling_resistance_ohm}",
+        )
+
+    sheet, epoch = _load_sheet(path)
+    header_row = _find_header_row(sheet)
+    headers = _read_headers(sheet, header_row)
+    if not headers:
+        raise AppError("EMPTY_HEADER", "未检测到有效表头", detail=str(path))
+
+    time_col = _find_column(
+        headers,
+        lambda h: "时间" in h and "log" not in _normalize_header(h),
+    )
+    voltage_cols = _find_columns(
+        headers,
+        lambda h: ("电压" in h or "vbat" in _normalize_header(h))
+        and "映射" not in h
+        and "log" not in _normalize_header(h),
+    )
+    index_col = _find_column(headers, lambda h: "索引" in h)
+    date_col = _find_column(headers, lambda h: "日期" in h and "log" not in _normalize_header(h))
+    pen_col = _find_column(headers, lambda h: "笔壳" in h and "温度" in h and "时间" not in h)
+    env_col = _find_column(headers, lambda h: "环境" in h and "温度" in h and "时间" not in h)
+    has_temperature_data = pen_col is not None and env_col is not None
+
+    if time_col is None:
+        raise AppError("MISSING_TIME", "未检测到“时间 (s)”相关列", detail=str(path))
+    if len(voltage_cols) < 2:
+        raise AppError(
+            "MISSING_SAMPLING_VOLTAGE",
+            "未检测到两列“电压 (V)”相关列，无法执行分压采集测试统计",
+            detail=str(path),
+        )
+    if len(voltage_cols) > 2:
+        detected_headers = ", ".join(headers[col_idx] for col_idx in voltage_cols)
+        raise AppError(
+            "TOO_MANY_SAMPLING_VOLTAGE",
+            "检测到超过两列“电压 (V)”相关列，无法唯一判定主电压与分压电压",
+            detail=f"{path.name}: {detected_headers}",
+        )
+
+    excluded_columns = {time_col, *voltage_cols}
+    if index_col is not None:
+        excluded_columns.add(index_col)
+    if date_col is not None:
+        excluded_columns.add(date_col)
+    if has_temperature_data and pen_col is not None:
+        excluded_columns.add(pen_col)
+    if has_temperature_data and env_col is not None:
+        excluded_columns.add(env_col)
+    extra_headers = _build_extra_headers(headers, excluded_columns)
+
+    row_records: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    point_index = 0
+
+    for row_idx in range(header_row + 1, sheet.max_row + 1):
+        time_value = sheet.cell(row=row_idx, column=time_col).value
+        if _is_empty(time_value):
+            continue
+        point_index += 1
+        fallback_date = None
+        if date_col is not None:
+            date_value = sheet.cell(row=row_idx, column=date_col).value
+            fallback_date = _parse_date_only(date_value, epoch)
+        dt_value = _parse_datetime_with_truncation(time_value, epoch, fallback_date)
+        if dt_value is None:
+            raise AppError(
+                "INVALID_DATETIME",
+                "时间列存在无法解析的数据",
+                detail=f"{path.name} row={row_idx} value={time_value}",
+            )
+
+        raw_index_value = sheet.cell(row=row_idx, column=index_col).value if index_col else None
+        parsed_index = int(raw_index_value) if isinstance(raw_index_value, int) else _to_float(raw_index_value)
+        row_records.append(
+            {
+                "point_index": point_index,
+                "index_value": int(parsed_index) if parsed_index is not None else None,
+                "dt": dt_value,
+                "voltage_candidates": {
+                    voltage_col: sheet.cell(row=row_idx, column=voltage_col).value for voltage_col in voltage_cols
+                },
+                "pen_temp_c": _to_float(sheet.cell(row=row_idx, column=pen_col).value) if pen_col else None,
+                "env_temp_c": _to_float(sheet.cell(row=row_idx, column=env_col).value) if env_col else None,
+                "extras": {
+                    extra_name: sheet.cell(row=row_idx, column=extra_col).value
+                    for extra_col, extra_name in extra_headers
+                },
+            }
+        )
+
+    if not row_records:
+        raise AppError("NO_DATA", "未检测到有效数据行", detail=str(path))
+
+    voltage_scores: list[tuple[int, float]] = []
+    for voltage_col in voltage_cols:
+        numeric_values = [
+            abs(value)
+            for value in (_to_float(record["voltage_candidates"].get(voltage_col)) for record in row_records)
+            if value is not None
+        ]
+        if not numeric_values:
+            raise AppError(
+                "SAMPLING_VOLTAGE_EMPTY",
+                "电压列缺少可解析的有效数据，无法执行分压采集测试统计",
+                detail=f"{path.name}: {headers[voltage_col]}",
+            )
+        voltage_scores.append((voltage_col, max(numeric_values)))
+    voltage_scores.sort(key=lambda item: (-item[1], voltage_cols.index(item[0])))
+    main_voltage_col = voltage_scores[0][0]
+    sampling_voltage_col = voltage_scores[1][0]
+    if voltage_scores[0][1] == voltage_scores[1][1]:
+        warnings.append("检测到两列电压绝对值最大值相同，已按表头顺序将前一列判定为“电压 (V)”")
+
+    if normalize_duplicate_seconds:
+        row_records, duplicate_warnings = _normalize_duplicate_second_records(row_records, "Excel", path)
+        warnings.extend(duplicate_warnings)
+
+    index_values: list[int | None] = []
+    datetimes: list[datetime] = []
+    date_strings: list[str] = []
+    time_strings: list[str] = []
+    sampling_voltage_raw_values: list[Any] = []
+    main_voltage_raw_values: list[Any] = []
+    pen_temps_c: list[float | None] = []
+    env_temps_c: list[float | None] = []
+    extras: dict[str, list[Any]] = {"分压电压 (V)": []}
+    for _, extra_name in extra_headers:
+        extras[extra_name] = []
+
+    for record in row_records:
+        dt_value = record["dt"]
+        index_values.append(record["index_value"])
+        datetimes.append(dt_value)
+        date_strings.append(dt_value.strftime("%Y-%m-%d"))
+        time_strings.append(dt_value.strftime("%H:%M:%S"))
+        main_voltage_raw = record["voltage_candidates"].get(main_voltage_col)
+        sampling_voltage_raw = record["voltage_candidates"].get(sampling_voltage_col)
+        main_voltage_raw_values.append(main_voltage_raw)
+        sampling_voltage_raw_values.append(sampling_voltage_raw)
+        extras["分压电压 (V)"].append(sampling_voltage_raw)
+        pen_temps_c.append(record["pen_temp_c"])
+        env_temps_c.append(record["env_temp_c"])
+        for _, extra_name in extra_headers:
+            extras[extra_name].append(record["extras"].get(extra_name))
+
+    sampling_voltages_v = [_to_float(value) for value in sampling_voltage_raw_values]
+    currents_ma = [
+        (value / sampling_resistance_ohm * 1000.0 if value is not None else None)
+        for value in sampling_voltages_v
+    ]
+    currents_ma, current_flipped = normalize_series_polarity(currents_ma)
+    if current_flipped:
+        warnings.append("检测到电流方向与预期相反，已将整列电流取相反数后再进行后续统计")
+
+    voltages_v = [_to_float(value) for value in main_voltage_raw_values]
+    voltages_v, voltage_flipped = normalize_series_polarity(voltages_v)
+    if voltage_flipped:
+        warnings.append("检测到电压极性与预期相反，已将整列电压取相反数后再进行后续统计")
+
+    return ChargeDataset(
+        source_path=path,
+        stem=path.stem,
+        index_values=index_values,
+        datetimes=datetimes,
+        date_strings=date_strings,
+        time_strings=time_strings,
+        currents_ma=currents_ma,
+        voltages_v=voltages_v,
+        pen_temps_c=pen_temps_c,
+        env_temps_c=env_temps_c,
+        extras=extras,
+        extra_headers_order=["分压电压 (V)", *[header for _, header in extra_headers]],
         has_temperature_data=has_temperature_data,
         warnings=warnings,
     )
