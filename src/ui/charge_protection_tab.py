@@ -7,7 +7,6 @@ from PySide6.QtCore import QSettings, QThread, Qt
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (
     QDialog,
-    QFileDialog,
     QFrame,
     QGroupBox,
     QHBoxLayout,
@@ -29,6 +28,7 @@ from src.core.models import BatchResult
 from src.ui.background_task import BackgroundTaskWorker
 from src.ui.charge_tab import BatchPacingDialog, BatchPacingSettings, SafeConfirmDialog
 from src.ui.components.file_upload import FileUploadWidget
+from src.ui.path_utils import open_directory
 
 
 class ChargeProtectionModeDialog(QDialog):
@@ -231,7 +231,7 @@ class ChargeProtectionTab(QWidget):
         output_layout = QVBoxLayout(output_group)
         output_layout.setContentsMargins(14, 20, 14, 14)
         output_layout.setSpacing(10)
-        output_hint = QLabel("默认输出到项目目录下 output 文件夹；如需降低批量处理失败风险，可在右侧“分批策略...”中设置分批等待。")
+        output_hint = QLabel("默认输出到项目目录下 output 文件夹；如需降低批量处理失败风险，可在右侧“分批策略”中设置分批等待。")
         output_hint.setObjectName("groupHint")
         output_hint.setWordWrap(True)
         output_row = QHBoxLayout()
@@ -240,8 +240,8 @@ class ChargeProtectionTab(QWidget):
         output_label.setObjectName("fieldLabel")
         self.output_edit = QLineEdit(str((Path.cwd() / "output").resolve()))
         self.output_edit.setObjectName("pathEdit")
-        self.browse_output_btn = QPushButton("浏览")
-        self.batch_pacing_btn = QPushButton("分批策略...")
+        self.browse_output_btn = QPushButton("打开文件夹")
+        self.batch_pacing_btn = QPushButton("分批策略")
         self.batch_pacing_btn.setProperty("accent", "warn")
         output_row.addWidget(output_label)
         output_row.addWidget(self.output_edit, stretch=1)
@@ -279,7 +279,7 @@ class ChargeProtectionTab(QWidget):
         horizontal_splitter.setSizes([760, 460])
         root_layout.addWidget(horizontal_splitter, stretch=1)
 
-        self.browse_output_btn.clicked.connect(self._on_select_output)
+        self.browse_output_btn.clicked.connect(self._on_open_output_dir)
         self.batch_pacing_btn.clicked.connect(self._open_batch_pacing_dialog)
         self.statistics_btn.clicked.connect(self._open_statistics_mode_dialog)
 
@@ -325,10 +325,8 @@ class ChargeProtectionTab(QWidget):
     def _on_paths_changed(self, paths: list[Path]) -> None:
         self._log("INFO", f"当前输入路径数量：{len(paths)}")
 
-    def _on_select_output(self) -> None:
-        folder = QFileDialog.getExistingDirectory(self, "选择输出目录", self.output_edit.text())
-        if folder:
-            self.output_edit.setText(folder)
+    def _on_open_output_dir(self) -> None:
+        open_directory(self, self.output_edit.text())
 
     @staticmethod
     def _to_bool(value: object, default: bool) -> bool:
