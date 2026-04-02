@@ -37,3 +37,5 @@ Thumbs.db
 # Project runtime outputs
 output/
 ~$*.xlsx
+
+backups/
